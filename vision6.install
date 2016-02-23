@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ *
+ * @see vision6_install()
+ */
+function vision6_install() {
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Perform actions to set up the site for this profile.
+ *
+ * @see vision6_install()
+ */
+function vision6_uninstall() {
+  variable_del('vision6_api_key');
+  variable_del('vision6_endpoint');
+  variable_del('vision6_header');
+  variable_del('vision6_footer');
+}
