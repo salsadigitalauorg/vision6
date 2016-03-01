@@ -1,8 +1,4 @@
 /**
- * @file Vision6 .js file.
- */
-
-/**
  * Javascript for donate entity module.
  */
 
