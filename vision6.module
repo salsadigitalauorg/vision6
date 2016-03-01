@@ -1,6 +1,7 @@
 <?php
 /**
  * The main .module file.
+ * 
  * @file vision6.module
  */
 
@@ -687,7 +688,7 @@ function _vision6_node_beforesave($node) {
     $var_footer = str_replace('src="/sites', 'src="' . $base_url . '/sites', $var_footer);
     $add_message['html_content'] .= '<br/><br/>' . check_markup($var_footer['value'], $var_footer['format']);
   }
-  $addBatch = array(
+  $add_batch = array(
     array(
       'type' => $wrapper->field_vis6_type->value(),
       'list_id' => $wrapper->field_vis6_contact_list_id->value(),
@@ -720,7 +721,7 @@ function _vision6_node_beforesave($node) {
     }
 
     if ($message_id) {
-      $batch_id = $client->addBatch(variable_get('vision6_api_key'), $message_id, $addBatch);
+      $batch_id = $client->addBatch(variable_get('vision6_api_key'), $message_id, $add_batch);
       if ($batch_id) {
         drupal_set_message(t('Published as Syndication.'), 'status');
         $node->field_vis6_published_as_synd[LANGUAGE_NONE][0]['value'] = 0;
