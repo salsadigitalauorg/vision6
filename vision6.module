@@ -1,7 +1,6 @@
 <?php
 /**
- * @file vision6.module
- * Description of what this module (or file) is doing.
+ * @file Vision6 .module file.
  */
 
 /**
@@ -26,7 +25,7 @@ function vision6_libraries_info() {
 }
 
 /**
- * Implements of hook_menu().
+ * Implements hook_menu().
  *
  * @see hook_menu()
  */
@@ -59,8 +58,8 @@ function vision6_menu() {
 }
 
 /**
- * Form callback for Vision6 settings
- * 
+ * Form callback for Vision6 settings.
+ *
  * @param array $form
  * @param array $form_state
  */
@@ -94,7 +93,7 @@ function vision6_settings($form, &$form_state) {
     '#collapsed' => FALSE,
   );
 
-  // Add a checkbox that requires them to say "I do", but don't show it
+  // Add a checkbox that requires them to say "I do", but don't show it,
   // (#access == FALSE) unless they're deleting.
   $visible = FALSE;
   if (!empty($form_state['delete_instances'])) {
@@ -187,13 +186,13 @@ function vision6_settings_submit($form, &$form_state) {
     $label = 'Publish this content as syndication';
     $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
-    // Set the Syndication type
+    // Set the Syndication type.
     $default = 'email';
     $field_name = 'field_vis6_syndication_type';
     $label = 'How do you want to send the syndication';
     $set_var = _vision6_create_fields($node_type->type, $field_name, $label, _vision6_get_syndication_type_array(), $default, '', $enable, $form_state);
 
-    // Set the Email type
+    // Set the Email type.
     $default = 'html';
     $field_name = 'field_vis6_email_type';
     $label = 'Type of email to send';
@@ -206,21 +205,21 @@ function vision6_settings_submit($form, &$form_state) {
     $description = 'Check this box to include the body text in the syndicated email.';
     $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
-    // Set the Contact Type
+    // Set the Contact Type.
     $description = '';
     $default = NULL;
     $field_name = 'field_vis6_type';
     $label = 'Who to contact';
     $set_var = _vision6_create_fields($node_type->type, $field_name, $label, _vision6_get_type_type_array(), $default, '', $enable, $form_state);
 
-    // Set the Contact List
+    // Set the Contact List.
     $default = NULL;
     $field_name = 'field_vis6_contact_list_id';
     $label = 'Which contact list to send it to?';
     $set_var = _vision6_create_fields($node_type->type, $field_name, $label, '_vision6_get_contact_list_id', $default, '', $enable, $form_state);
     if ($form_state['set_var']) variable_set('vision6_' . $node_type->type, $enable);;
 
-    // Set the Contact List
+    // Set the Contact List.
     $default = FALSE;
     $field_name = 'field_vis6_previous_message_id';
     $label = 'Previous Message ID';
@@ -374,9 +373,9 @@ function vision6_sandbox($form, &$form_state) {
     '#type' => 'select',
     '#title' => 'Type',
     '#options' => array(
-      'contacts' => 'Contacts',
-      'list' => 'List',
-      'unsent' => 'Unsent',
+      'contacts' => t('Contacts'),
+      'list' => t('List'),
+      'unsent' => t('Unsent'),
     ),
   );
 
@@ -492,7 +491,7 @@ function vision6_permission() {
  * @param string $form_id
  */
 function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
-  global $user;
+  // global $user;
 
   if (!variable_get('vision6_' . $form['type']['#value'], FALSE)) return;
 
@@ -509,7 +508,7 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['options']['promote']['#access'] = FALSE;
     $form['options']['sticky']['#access'] = FALSE;
   }
-  $node = $form['#node'];
+  // $node = $form['#node'];
 
   // Get rid of the node fields and move them to fieldset
   $field_vis6_published_as_synd = $form['field_vis6_published_as_synd'];
@@ -567,7 +566,7 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
  * to be syndicated that the other syndication fields are filled in
  */
 function _vision6_form_node_form_validate(&$form, &$form_state) {
-  // if it should be syndicated make the other fields mandatory
+  // if it should be syndicated make the other fields mandatory.
   if ($form_state['values']['field_vis6_new_published_as_synd'][LANGUAGE_NONE][0]['value']) {
     if (!$form_state['values']['field_vis6_new_syndication_type'][LANGUAGE_NONE][0]['value']) {
       form_set_error('field_vis6_new_syndication_type', t('The syndication type is required.'));
@@ -734,7 +733,7 @@ function _vision6_node_beforesave($node) {
 
 function _vision6_get_contact_list_id() {
   $results = array();
-  // Get the client list ids from Vision 6
+  // Get the client list ids from Vision 6.
   try {
     $client = _vision6_get_api_client();
 
@@ -772,7 +771,7 @@ function _vision6_get_contact_list_id() {
  */
 function _vision6_get_contact_list_by_id($listid) {
   $results = array();
-  // Get the client list ids from Vision 6
+  // Get the client list ids from Vision 6.
   try {
     $client = _vision6_get_api_client();
 
@@ -889,7 +888,7 @@ function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $
   // Conversely, if they *don't* want it and it's currently enabled,
   // warn them about the consequences or do it.
   elseif (!$enable && $currently_enabled) {
-    // If they haven't clicked the "confirm" checkbox, rebuild and get them
+    // If they haven't clicked the "confirm" checkbox, rebuild and get them,
     // to do it.
     if (empty($confirmed)) {
       return FALSE;

@@ -1,7 +1,6 @@
 <?php
 /**
- * @file vision6.install
- * Description of what this module (or file) is doing.
+ * @file The installation file.
  */
 
 /**
@@ -12,6 +11,8 @@
  * @see vision6_install()
  */
 function vision6_install() {
+	// Empty installation hooks are not necessary
+	 drupal_set_message(t("Vision6 installed."), 'status');
 }
 
 /**
