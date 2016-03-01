@@ -2,7 +2,6 @@ name = Vision6 Integration
 description = ""
 package = Vision 6
 core = 7.x
-version = "7.x-1.0"
 
 ; Add module dependencies here
 dependencies[] = libraries
