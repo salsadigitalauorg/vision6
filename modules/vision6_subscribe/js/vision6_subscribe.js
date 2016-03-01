@@ -1,3 +1,8 @@
+/**
+ * Javascript for vision6_subscribe module.
+ * @file vision6.js.
+ */
+
 (function ($) {
   Drupal.behaviors.VisionSixSubscribe = {
     attach: function (context) {
