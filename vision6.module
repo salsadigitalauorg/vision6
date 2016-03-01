@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file vision6.module
+ * Description of what this module (or file) is doing.
+ */
 
 /**
- * Implementation of hook_libraries_info()
+ * Implements hook_libraries_info().
  *
  * Makes the JsonRPC library available.
  *
@@ -22,7 +26,7 @@ function vision6_libraries_info() {
 }
 
 /**
- * Implementation of hook_menu()
+ * Implements of hook_menu().
  *
  * @see hook_menu()
  */
@@ -56,6 +60,7 @@ function vision6_menu() {
 
 /**
  * Form callback for Vision6 settings
+ * 
  * @param array $form
  * @param array $form_state
  */
@@ -71,14 +76,13 @@ function vision6_settings($form, &$form_state) {
   $form['vision6_option']['vision6_api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Vision6 API key'),
-    '#description' => t(''),
+    '#description' => t('Get your API key <a href="http://developers.vision6.com.au/guide/getting-started">here</a>'),
     '#default_value' => variable_get('vision6_api_key'),
   );
 
   $form['vision6_option']['vision6_endpoint'] = array(
     '#type' => 'textfield',
     '#title' => t('API Endpoint'),
-    '#description' => t(''),
     '#default_value' => variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0'),
   );
 
