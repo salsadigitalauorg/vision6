@@ -1,5 +1,6 @@
 /**
  * Javascript for donate entity module.
+ * @file vision6.js.
  */
 
 (function ($, Drupal, window, document, undefined) {

@@ -286,7 +286,8 @@ function vision6_subscribe_view($entity, $view_mode = 'default') {
     $entity->content, $entity_type);
 
   // And finally return the content.
-  return $entity->content;
+  $entity_content = $entity->content;
+  return $entity_content;
 }
 
 /**

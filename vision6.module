@@ -1,6 +1,7 @@
 <?php
 /**
- * @file Vision6 .module file.
+ * The main .module file.
+ * @file vision6.module
  */
 
 /**
@@ -312,7 +313,7 @@ function vision6_sandbox($form, &$form_state) {
     '#title' => 'Subject',
   );
 
-  // TODO: May want to test the differences between these, not clear from documentation.
+  // TODO: Need to test the differences between these, not clear in documentation.
   $form['addMessage']['email_type'] = array(
     '#type' => 'select',
     '#title' => 'Email Type',
@@ -409,7 +410,7 @@ function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
   $client = _vision6_get_api_client();
 
   if (!$client) {
-    watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
+    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
     drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
   }
 
@@ -487,9 +488,12 @@ function vision6_permission() {
 }
 
 /**
- * Implements hook_form_alter()
+ * Implements hook_form_alter().
+ * 
  * @param array $form
+ * drupal form object.
  * @param array $form_state
+ * Drupal form_state.
  * @param string $form_id
  */
 function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
@@ -497,8 +501,10 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
 
   $form['#validate'][] = '_vision6_form_node_form_validate';
 
-  // This js sets the values of my newly created fields back to the original,
-  // drupal fields. The new fields are in the vertical tab to meet the func spec.
+/**
+* The js sets the values of my newly created fields back to the original,
+* drupal fields. The new fields are in the vertical tab to meet the func spec.
+*/
   drupal_add_js(drupal_get_path('module', 'vision6') . '/js/vision6.js', 'file');
 
   if (user_access('access vision6 publish') && !user_access('publish revisions')) {
@@ -508,7 +514,6 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['options']['promote']['#access'] = FALSE;
     $form['options']['sticky']['#access'] = FALSE;
   }
-  // $node = $form['#node'];
   // Get rid of the node fields and move them to fieldset
   $field_vis6_published_as_synd = $form['field_vis6_published_as_synd'];
   $field_vis6_syndication_type = $form['field_vis6_syndication_type'];
@@ -725,7 +730,7 @@ function _vision6_node_beforesave($node) {
     }
   } catch (Exception $e) {
     watchdog_exception('vision6', $e);
-    drupal_set_message(t('Could not publish as Syndication due to the following error:') .' '. check_plain($e->getMessage()), 'error');
+    drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
 }
@@ -736,9 +741,9 @@ function _vision6_get_contact_list_id() {
   try {
     $client = _vision6_get_api_client();
 
-    # TODO: we don't need multiple return paths here, I'll get to it later
+    // TODO: we don't need multiple return paths here, I'll get to it later
     if (!$client) {
-      watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
+      watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
       drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
 
       return $results;
@@ -748,7 +753,7 @@ function _vision6_get_contact_list_id() {
 
   } catch (Exception $e) {
     watchdog_exception('vision6', $e);
-    drupal_set_message(t('Could not publish as Syndication due to the following error:') .' '. check_plain($e->getMessage()), 'error');
+    drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
   if (!isset($result['error'])) {
