@@ -1,8 +1,7 @@
 <?php
 /**
- * The class vision6 subscribe file.
- * 
- * @file vision6.module
+ * @file
+ * Vision6 subscribe class.
  */
 
 /**
@@ -147,6 +146,7 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
       }
     }
   }
+
 }
 
 /**
