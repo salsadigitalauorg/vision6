@@ -1,8 +1,7 @@
 <?php
 /**
- * The main .module file.
- * 
- * @file vision6.module
+ * @file
+ * Vision6 main module, which required by other sub modules.
  */
 
 /**

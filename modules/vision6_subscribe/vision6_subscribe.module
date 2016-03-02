@@ -1,8 +1,7 @@
 <?php
 /**
- * The vision6_subscribe .module file.
- * 
- * @file vision6_subscribe.module
+ * @file
+ * Vision6 subscribe module.
  */
 
 /**
