@@ -4,6 +4,7 @@
  */
 
 (function ($) {
+  'use strict';
   Drupal.behaviors.VisionSixSubscribe = {
     attach: function (context) {
       $(document).ready(function () {
