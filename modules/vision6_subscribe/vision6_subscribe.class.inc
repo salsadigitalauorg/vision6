@@ -125,6 +125,7 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
    *   An array of entity IDs or a single numeric ID.
    */
   public function deleteMultiple($entities) {
+    /* @var $entities type hinting */
     $vsids = array();
     if (!empty($entities)) {
       $transaction = db_transaction();

@@ -123,14 +123,16 @@ function vision6_subscribe_block_info() {
   $blocks = array();
   foreach (vision6_subscribe_load_multiple() as $entity) {
     $blocks['vision6_subscribe' . $entity->vsid] = array(
-      'info' => t('Vision 6 Subscribe: ' . $entity->title),
+      'info' => t('Vision 6 Subscribe: &nbsp;').t($entity->title),
     );
   }
   return $blocks;
 }
 
 /**
- * Implementation of hook_block_view();
+ * Implements hook_block_view();
+ *
+ * @see hook_block_info()
  */
 function vision6_subscribe_block_view($delta = '') {
   $entity = vision6_subscribe_load(str_replace('vision6_subscribe', '', $delta));
@@ -145,7 +147,7 @@ function vision6_subscribe_theme($existing, $type, $theme, $path) {
   foreach (vision6_subscribe_load_multiple() as $entity) {
     $themes['vision6_subscribe' . $entity->vsid] = array(
       'template' => 'vision6-subscribe',
-      'path' => $module_path
+      'path' => $module_path,
     );
   }
   $themes['_vision6_subscribe_subscribe_form'] = array(
@@ -419,7 +421,7 @@ function vision6_subscribe_form($form, &$form_state, $entity) {
     '#description' => t('Body text for the block. If this field is empty the field will not appear.'),
     '#required' => FALSE,
     '#default_value' => $entity->body,
-    '#format' =>  $entity->body_format,
+    '#format' => $entity->body_format,
   );
 
   $form['basic_entity'] = array(
@@ -579,7 +581,7 @@ function _vision6_subscribe_subscribe_form($form, &$form_state, $entity) {
 }
 
 function _vision6_subscribe_subscribe_form_validate(&$form, &$form_state) {
-  if(!filter_var($form_state['values']['email'], FILTER_VALIDATE_EMAIL)) {
+  if (!filter_var($form_state['values']['email'], FILTER_VALIDATE_EMAIL)) {
     form_set_error('email', t('Please enter a valid email address.'));
   }
 }
@@ -588,7 +590,7 @@ function _vision6_subscribe_subscribe_form_submit(&$form, &$form_state) {
   try {
     $client = _vision6_get_api_client();
     if (!$client) {
-      watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
+      watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
       drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
 
       return;
@@ -602,12 +604,12 @@ function _vision6_subscribe_subscribe_form_submit(&$form, &$form_state) {
     if (isset($form_state['values']['lastname'])) {
       $contact_details['Last Name'] = $form_state['values']['lastname'];
     }
-    $newSubscriber = array(
+    $new_subscriber = array(
       variable_get('vision6_api_key'),
       $form_state['values']['listid'],
       $contact_details,
     );
-    $newsub = $client->subscribeContact($newSubscriber);
+    $newsub = $client->subscribeContact($new_subscriber);
     if ($newsub > 0) {
       $list = _vision6_get_contact_list_by_id($form_state['values']['listid']);
       if ($list) {
@@ -618,8 +620,9 @@ function _vision6_subscribe_subscribe_form_submit(&$form, &$form_state) {
       }
       drupal_set_message(t('Thank you for subscribing to the @list list.', array('@list' => $listname)));
     }
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog_exception('vision6_subscribe', $e);
-    drupal_set_message(t('We could not process your subscription: ') . check_plain($e->getMessage()), 'error');
+    drupal_set_message(t('We could not process your subscription: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 }
