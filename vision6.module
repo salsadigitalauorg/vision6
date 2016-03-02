@@ -501,10 +501,10 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
 
   $form['#validate'][] = '_vision6_form_node_form_validate';
 
-/**
-* The js sets the values of my newly created fields back to the original,
-* drupal fields. The new fields are in the vertical tab to meet the func spec.
-*/
+
+// The js sets the values of my newly created fields back to the original,
+// drupal fields. The new fields are in the vertical tab to meet the func spec.
+
   drupal_add_js(drupal_get_path('module', 'vision6') . '/js/vision6.js', 'file');
 
   if (user_access('access vision6 publish') && !user_access('publish revisions')) {
@@ -514,7 +514,7 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['options']['promote']['#access'] = FALSE;
     $form['options']['sticky']['#access'] = FALSE;
   }
-  // Get rid of the node fields and move them to fieldset
+  // Get rid of the node fields and move them to fieldset.
   $field_vis6_published_as_synd = $form['field_vis6_published_as_synd'];
   $field_vis6_syndication_type = $form['field_vis6_syndication_type'];
   $field_vis6_email_type = $form['field_vis6_email_type'];
@@ -529,7 +529,6 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     '#access' => user_access('access vision6 publish'),
     '#type' => 'fieldset',
     '#title' => t('Syndication options'),
-    // '#description' => t('Only <strong>published content</strong> is delivered as syndication'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#weight' => 100,
@@ -603,8 +602,11 @@ function vision6_workbench_moderation_transition($node, $previous_state, $new_st
 /**
  * Implements node_submit
  * @param object $node
+ * node object.
  * @param array $form
+ * form object.
  * @param array $form_state
+ * Form state.
  */
 function _vision6_node_beforesave($node) {
   $wrapper = entity_metadata_wrapper('node', $node);
@@ -728,7 +730,8 @@ function _vision6_node_beforesave($node) {
         field_attach_update('node', $node);
       }
     }
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog_exception('vision6', $e);
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
@@ -741,7 +744,7 @@ function _vision6_get_contact_list_id() {
   try {
     $client = _vision6_get_api_client();
 
-    // TODO: we don't need multiple return paths here, I'll get to it later
+    // TODO: we don't need multiple return paths, I'll get to it later.
     if (!$client) {
       watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
       drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
