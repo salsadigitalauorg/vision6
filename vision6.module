@@ -393,9 +393,10 @@ function vision6_sandbox($form, &$form_state) {
  * Submit handler for the addMessage function tester.
  */
 function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
-  $client = _vision6_get_api_client();
-
-  if (!$client) {
+  try {
+    $client = _vision6_get_api_client();
+  }
+  catch (Exception $e) {
     watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
     drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
   }
@@ -411,11 +412,12 @@ function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
  * Submit handler for the addBatch function tester.
  */
 function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
-  $client = _vision6_get_api_client();
-
-  if (!$client) {
-    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
-    drupal_set_message('Unable to retrieve an API client, is the JsonRPC library installed correctly?', 'error');
+  try {
+    $client = _vision6_get_api_client();
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('Could not initiate Vision6 API due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
   $values = &$form_submit['values']['addBatch'];
@@ -431,11 +433,13 @@ function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
  * @return \JsonRPC\Client
  *   Returns a JSON RPC client for usage with the Vision6 API. May return NULL
  *   if there was an error loading required libraries.
+ *
+ * @throws Exception
  */
 function _vision6_get_api_client() {
   $loaded = libraries_load('JsonRPC');
   if (!$loaded['installed'] || !$loaded['loaded']) {
-    return NULL;
+    throw new Exception('Unable to load JsonRPC library');
   }
 
   return new \JsonRPC\Client(variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0'));
@@ -677,13 +681,6 @@ function _vision6_node_beforesave($node) {
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
-  if (!$client) {
-    watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
-    drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-    return;
-  }
-
   $add_message['html_content'] .= '</div>';
   $add_message['html_content'] .= '<table style="width: 100%;"><tr><td align="center" valign="top"><center><table border="0" align="center" style="max-width:714px;"><tbody style="width:100%;"><tr><td>' . $add_message['html_content'];
   $add_message['html_content'] .= '</td></tr></tbody></table></center></td></tr></table>';
@@ -691,10 +688,22 @@ function _vision6_node_beforesave($node) {
   if ($wrapper->field_vis6_type->value() == 'unsent' && $wrapper->field_vis6_previous_message_id->value()) {
     $add_message['id'] = $wrapper->field_vis6_previous_message_id->value();
     unset($add_message['type']);
-    $message_id = $client->editMessage(variable_get('vision6_api_key'), $add_message);
+    try {
+      $message_id = $client->editMessage(variable_get('vision6_api_key'), $add_message);
+    }
+    catch (Exception $e) {
+      watchdog_exception('vision6', $e);
+      drupal_set_message(t('Could not edit message due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
+    }
   }
   else {
-    $message_id = $client->addMessage(variable_get('vision6_api_key'), $add_message);
+    try {
+      $message_id = $client->addMessage(variable_get('vision6_api_key'), $add_message);
+    }
+    catch (Exception $e) {
+      watchdog_exception('vision6', $e);
+      drupal_set_message(t('Could not add message due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
+    }
   }
 
   if ($message_id) {
@@ -725,15 +734,13 @@ function _vision6_get_contact_list_id() {
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
-  // TODO: we don't need multiple return paths, I'll get to it later.
-  if (!$client) {
-    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
-    drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-    return $results;
+  try {
+    $result = $client->searchLists(variable_get('vision6_api_key'), array(), 0, 0, 'name', 'ASC');
   }
-
-  $result = $client->searchLists(variable_get('vision6_api_key'), array(), 0, 0, 'name', 'ASC');
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
+  }
 
   if (!isset($result['error'])) {
     foreach ($result as $item) {
@@ -769,17 +776,16 @@ function _vision6_get_contact_list_by_id($listid) {
     drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
   }
 
-  if (!$client) {
-    watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
-    drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-    return FALSE;
+  try {
+    $result = $client->getListById(array(
+      variable_get('vision6_api_key'),
+      $listid,
+    ));
   }
-
-  $result = $client->getListById(array(
-    variable_get('vision6_api_key'),
-    $listid,
-  ));
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
+  }
 
   if (!isset($result['error'])) {
     return $result;
