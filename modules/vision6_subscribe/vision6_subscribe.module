@@ -112,7 +112,8 @@ function vision6_subscribe_permission() {
  */
 function vision6_subscribe_block_info() {
   $blocks = array();
-  foreach (vision6_subscribe_entity_load_multiple() as $entity) {
+  $entities = vision6_subscribe_entity_load_multiple();
+  foreach ($entities as $entity) {
     $blocks['vision6_subscribe' . $entity->vsid] = array(
       'info' => t('Vision 6 Subscribe: &nbsp;') . t($entity->title),
     );
@@ -133,10 +134,14 @@ function vision6_subscribe_block_view($delta = '') {
   return $block;
 }
 
+/**
+ * Implements hook_theme().
+ */
 function vision6_subscribe_theme($existing, $type, $theme, $path) {
   $themes = array();
   $module_path = drupal_get_path('module', 'vision6_subscribe') . '/templates';
-  foreach (vision6_subscribe_entity_load_multiple() as $entity) {
+  $entities = vision6_subscribe_entity_load_multiple();
+  foreach ($entities as $entity) {
     $themes['vision6_subscribe' . $entity->vsid] = array(
       'template' => 'vision6-subscribe',
       'path' => $module_path,
@@ -147,6 +152,7 @@ function vision6_subscribe_theme($existing, $type, $theme, $path) {
     'template' => 'vision6-subscribe-subscribe-form',
     'path' => drupal_get_path('module', 'vision6_subscribe') . '/templates',
   );
+
   return $themes;
 }
 
@@ -636,19 +642,13 @@ function vision6_subscribe_subscribe_form_submit(&$form, &$form_state) {
     drupal_set_message(t('We could not process your subscription: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
-  if (!$client) {
-    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
-    drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-    return;
-  }
   $contact_details = array(
     'Email' => $form_state['values']['email'],
   );
-  if (isset($form_state['values']['firstname'])) {
+  if (!empty($form_state['values']['firstname'])) {
     $contact_details['First Name'] = $form_state['values']['firstname'];
   }
-  if (isset($form_state['values']['lastname'])) {
+  if (!empty($form_state['values']['lastname'])) {
     $contact_details['Last Name'] = $form_state['values']['lastname'];
   }
   $new_subscriber = array(
@@ -667,7 +667,7 @@ function vision6_subscribe_subscribe_form_submit(&$form, &$form_state) {
 
   if ($newsub > 0) {
     $list = _vision6_get_contact_list_by_id($form_state['values']['listid']);
-    if ($list) {
+    if (!empty($list)) {
       $listname = $list[0]['name'];
     }
     else {

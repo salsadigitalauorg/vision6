@@ -61,7 +61,7 @@ function vision6_settings($form, &$form_state) {
     '#title' => t('Vision 6 API Settings'),
     '#access' => user_access('manage vision6 settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => (variable_get('vision6_api_key') != '' && variable_get('vision6_endpoint', '') != ''),
+    '#collapsed' => variable_get('vision6_api_key') != '' && variable_get('vision6_endpoint', '') != '',
   );
 
   $form['vision6_option']['vision6_api_key'] = array(
@@ -403,7 +403,16 @@ function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
 
   $values = &$form_submit['values']['addMessage'];
   unset($values['actions']);
-  $message_id = $client->addMessage(variable_get('vision6_api_key'), $values);
+
+  $api_key = variable_get('vision6_api_key');
+  try {
+    $message_id = $client->addMessage($api_key, $values);
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('Unable to add message to the Vision6 client'), 'error');
+  }
+
   drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
   drupal_set_message(t('Message ID: %message', array('%message' => $message_id)));
 }
@@ -422,7 +431,8 @@ function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
 
   $values = &$form_submit['values']['addBatch'];
   unset($values['actions']);
-  $batch_id = $client->addBatch(variable_get('vision6_api_key'), $values['message_id'], $values['contact_populations']);
+  $api_key = variable_get('vision6_api_key');
+  $batch_id = $client->addBatch($api_key, $values['message_id'], $values['contact_populations']);
   drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
   drupal_set_message(t('Batch ID: %batch', array('%batch' => $batch_id)));
 }
@@ -442,7 +452,9 @@ function _vision6_get_api_client() {
     throw new Exception('Unable to load JsonRPC library');
   }
 
-  return new \JsonRPC\Client(variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0'));
+  $endpoint = variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0');
+
+  return new \JsonRPC\Client($endpoint);
 }
 
 /**
@@ -688,8 +700,9 @@ function _vision6_node_beforesave($node) {
   if ($wrapper->field_vis6_type->value() == 'unsent' && $wrapper->field_vis6_previous_message_id->value()) {
     $add_message['id'] = $wrapper->field_vis6_previous_message_id->value();
     unset($add_message['type']);
+    $message = variable_get('vision6_api_key');
     try {
-      $message_id = $client->editMessage(variable_get('vision6_api_key'), $add_message);
+      $message_id = $client->editMessage($message, $add_message);
     }
     catch (Exception $e) {
       watchdog_exception('vision6', $e);
@@ -697,8 +710,9 @@ function _vision6_node_beforesave($node) {
     }
   }
   else {
+    $api_key = variable_get('vision6_api_key');
     try {
-      $message_id = $client->addMessage(variable_get('vision6_api_key'), $add_message);
+      $message_id = $client->addMessage($api_key, $add_message);
     }
     catch (Exception $e) {
       watchdog_exception('vision6', $e);
@@ -707,7 +721,8 @@ function _vision6_node_beforesave($node) {
   }
 
   if ($message_id) {
-    $batch_id = $client->addBatch(variable_get('vision6_api_key'), $message_id, $add_batch);
+    $api_key = variable_get('vision6_api_key');
+    $batch_id = $client->addBatch($api_key, $message_id, $add_batch);
     if ($batch_id) {
       drupal_set_message(t('Published as Syndication.'), 'status');
       $node->field_vis6_published_as_synd[LANGUAGE_NONE][0]['value'] = 0;
@@ -734,8 +749,9 @@ function _vision6_get_contact_list_id() {
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
+  $api_key = variable_get('vision6_api_key');
   try {
-    $result = $client->searchLists(variable_get('vision6_api_key'), array(), 0, 0, 'name', 'ASC');
+    $result = $client->searchLists($api_key, array(), 0, 0, 'name', 'ASC');
   }
   catch (Exception $e) {
     watchdog_exception('vision6', $e);
