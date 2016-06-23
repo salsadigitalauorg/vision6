@@ -4,7 +4,7 @@
  * Vision6 main module, which required by other sub modules.
  */
 
-use \JsonRPC\Client;
+define('VISION6_DEFAULT_ENDPOINT', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0');
 
 /**
  * Implements hook_libraries_info().
@@ -449,7 +449,7 @@ function _vision6_get_api_client() {
     throw new Exception('Unable to load JsonRPC library');
   }
 
-  $endpoint = variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0');
+  $endpoint = variable_get('vision6_endpoint', VISION6_DEFAULT_ENDPOINT);
 
   return new \JsonRPC\Client($endpoint);
 }
@@ -915,7 +915,8 @@ function _vision6_check_field(
     $options,
     $confirmed,
     $field_type = 'list_text',
-    $multiple = FALSE) {
+    $multiple = FALSE
+) {
   $instance = field_info_instance('node', $field_name, $bundle);
   $currently_enabled = !empty($instance);
 
@@ -995,7 +996,8 @@ function _vision6_create_instance(
     $description = NULL,
     $weight = 0,
     $no_display = TRUE,
-    $multiple = FALSE) {
+    $multiple = FALSE
+) {
 
   // Look for the field and instance.
   $field = field_info_field($field_name);
