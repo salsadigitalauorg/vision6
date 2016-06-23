@@ -3,7 +3,7 @@
  * @file vision6.js.
  */
 
-/*global jQuery, Drupal, document, console, window*/
+/* global jQuery, Drupal, document, console, window */
 
 (function ($) {
   'use strict';
@@ -39,7 +39,7 @@
           else {
             sub_form.find('[id^="subscribe_message"]').show();
           }
-        }
+        };
         $('[id^="-vision6-subscribe-subscribe-form"] [id^="edit-submit"]').click(function () {validateForm($(this).parent().parent().parent()); return false; });
       });
     }

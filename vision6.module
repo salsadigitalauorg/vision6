@@ -165,50 +165,45 @@ function vision6_settings_submit($form, &$form_state) {
   // Create the delete array.
   $form_state['delete_instances'] = array();
 
-  // This will be used as the description for the field.
-  $description = '';
   foreach ($node_types as $node_type) {
     $enable = !empty($form_state['values'][$node_type->type]) ? $form_state['values'][$node_type->type] : '';
     // Set the Published as syndication options.
     $default = FALSE;
     $field_name = 'field_vis6_published_as_synd';
     $label = 'Publish this content as syndication';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Syndication type.
     $default = 'email';
     $field_name = 'field_vis6_syndication_type';
     $label = 'How do you want to send the syndication';
     $options = vision6_get_syndication_types();
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the Email type.
     $default = 'html';
     $field_name = 'field_vis6_email_type';
     $label = 'Type of email to send';
     $options = vision6_get_email_types();
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the include body to syndication options.
     $default = FALSE;
     $field_name = 'field_vis6_inc_body_synd';
     $label = 'Show page content';
-    $description = 'Check this box to include the body text in the syndicated email.';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Contact Type.
-    $description = '';
     $default = NULL;
     $field_name = 'field_vis6_type';
     $label = 'Who to contact';
     $options = vision6_get_type();
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the Contact List.
-    $default = NULL;
     $field_name = 'field_vis6_contact_list_id';
     $label = 'Which contact list to send it to?';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, '_vision6_get_contact_list_id', $default, '', $enable, $form_state);
+    _vision6_create_fields($node_type->type, $field_name, $label, '_vision6_get_contact_list_id', $default, '', $enable, $form_state);
     if ($form_state['set_var']) {
       variable_set('vision6_' . $node_type->type, $enable);
     };
@@ -217,7 +212,7 @@ function vision6_settings_submit($form, &$form_state) {
     $default = FALSE;
     $field_name = 'field_vis6_previous_message_id';
     $label = 'Previous Message ID';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, $default, $default, '', $enable, $form_state, 'text');
+    _vision6_create_fields($node_type->type, $field_name, $label, $default, $default, '', $enable, $form_state, 'text');
     if ($form_state['set_var']) {
       variable_set('vision6_' . $node_type->type, $enable);
     };
@@ -474,7 +469,7 @@ function vision6_permission() {
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
 function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (!variable_get('vision6_' . $form['type']['#value'], FALSE)) {

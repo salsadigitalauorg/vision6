@@ -3,15 +3,15 @@
  * Javascript for donate entity module.
  */
 
-/*global jQuery, Drupal, document, console, window*/
+/* global jQuery, Drupal, document, console, window */
 
 (function ($) {
-  "use strict";
+  'use strict';
 
   Drupal.behaviors.vision6 = {
     attach: function (context, settings) {
       $('#edit-field-vis6-new-published-as-synd-und').on('change', function () {
-        $('input[name="field_vis6_published_as_synd[und]"]').prop('checked', $(this).prop("checked"));
+        $('input[name="field_vis6_published_as_synd[und]"]').prop('checked', $(this).prop('checked'));
       });
       $('#edit-field-vis6-new-syndication-type-und').on('change', function () {
         $('select[name="field_vis6_syndication_type[und]"]').val($(this).val());
@@ -26,7 +26,7 @@
         $('select[name="field_vis6_contact_list_id[und]"]').val($(this).val());
       });
       $('#edit-field-vis6-new-inc-body-synd-und').on('change', function () {
-        $('input[name="field_vis6_inc_body_synd[und]"]').prop('checked', $(this).prop("checked"));
+        $('input[name="field_vis6_inc_body_synd[und]"]').prop('checked', $(this).prop('checked'));
       });
     }
   };

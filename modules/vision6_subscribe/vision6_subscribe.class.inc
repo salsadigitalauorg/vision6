@@ -5,7 +5,7 @@
  */
 
 /**
- * VisionSubscribeFormControllerInterface definition.
+ * Vision6SubscribeFormControllerInterface definition.
  *
  * We create an interface here because anyone could come along and
  * use hook_entity_info_alter() to change our controller class.
@@ -14,7 +14,7 @@
  *
  * @see hook_entity_info_alter()
  */
-interface VisionSubscribeFormControllerInterface extends DrupalEntityControllerInterface {
+interface Vision6SubscribeFormControllerInterface extends DrupalEntityControllerInterface {
 
   /**
    * Creates an entity.
@@ -40,12 +40,12 @@ interface VisionSubscribeFormControllerInterface extends DrupalEntityControllerI
 }
 
 /**
- * VisionSubscribeFormController extends DrupalDefaultEntityController.
+ * Vision6SubscribeFormController extends DrupalDefaultEntityController.
  *
  * Our subclass of DrupalDefaultEntityController lets us add a few
  * important create, update, and delete methods.
  */
-class VisionSubscribeFormController extends DrupalDefaultEntityController implements VisionSubscribeFormControllerInterface {
+class Vision6SubscribeFormController extends DrupalDefaultEntityController implements Vision6SubscribeFormControllerInterface {
 
   /**
    * Creates and return a new vision6_subscribe entity.
@@ -149,5 +149,4 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
       }
     }
   }
-
 }

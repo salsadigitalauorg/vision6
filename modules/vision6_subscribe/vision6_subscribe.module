@@ -13,7 +13,7 @@ function vision6_subscribe_entity_info() {
       'label' => t('vision6_subscribe'),
       'plural label' => t('Vision 6 Subscribe Block'),
       'entity class' => 'Entity',
-      'controller class' => 'VisionSubscribeFormController',
+      'controller class' => 'Vision6SubscribeFormController',
       'base table' => 'vision6_subscribe',
       'entity keys' => array(
         'id' => 'vsid',
