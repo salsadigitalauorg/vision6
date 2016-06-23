@@ -115,7 +115,7 @@ function vision6_subscribe_block_info() {
   $entities = vision6_subscribe_entity_load_multiple();
   foreach ($entities as $entity) {
     $blocks['vision6_subscribe' . $entity->vsid] = array(
-      'info' => t('Vision 6 Subscribe: &nbsp;') . t($entity->title),
+      'info' => t('Vision 6 Subscribe:  @title', array('@title' => $entity->title)),
     );
   }
 
@@ -123,9 +123,7 @@ function vision6_subscribe_block_info() {
 }
 
 /**
- * Implements hook_block_view();
- *
- * @see hook_block_info()
+ * Implements hook_block_view().
  */
 function vision6_subscribe_block_view($delta = '') {
   $entity = vision6_subscribe_entity_load(str_replace('vision6_subscribe', '', $delta));
@@ -614,7 +612,7 @@ function vision6_subscribe_subscribe_form($form, &$form_state, $entity) {
   if (function_exists('honeypot_add_form_protection')) {
     honeypot_add_form_protection($form, $form_state, array(
       'honeypot',
-      'time_restriction'
+      'time_restriction',
     ));
   }
 

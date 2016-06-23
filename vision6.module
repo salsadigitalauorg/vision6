@@ -4,6 +4,8 @@
  * Vision6 main module, which required by other sub modules.
  */
 
+use \JsonRPC\Client;
+
 /**
  * Implements hook_libraries_info().
  */
@@ -319,7 +321,7 @@ function vision6_sandbox($form, &$form_state) {
   $form['addMessage']['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => 'addMessage()',
-    '#submit' => array('vision6_sandbox_add_message_submit')
+    '#submit' => array('vision6_sandbox_add_message_submit'),
   );
 
   $form['addBatch'] = array(
@@ -574,10 +576,23 @@ function vision6_node_insert($node) {
   _vision6_node_beforesave($node);
 }
 
+/**
+ * Implements hook_node_update().
+ */
 function vision6_node_update($node) {
   _vision6_node_beforesave($node);
 }
 
+/**
+ * Helper to update node when the new state is set to published during save.
+ *
+ * @param object $node
+ *   Drupal node object.
+ * @param string $previous_state
+ *   Previous publishing state of the node moderation status.
+ * @param string $new_state
+ *   New state of the node moderation status.
+ */
 function vision6_workbench_moderation_transition($node, $previous_state, $new_state) {
   if ($new_state == 'published') {
     _vision6_node_beforesave($node);
@@ -761,11 +776,11 @@ function _vision6_get_contact_list_id() {
   else {
     watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
       '%errnum' => $result['error']['code'],
-      '%errmessage' => $result['error']['message']
+      '%errmessage' => $result['error']['message'],
     ), WATCHDOG_ERROR);
     drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
       '%errnum' => $result['error']['code'],
-      '%errmessage' => $result['error']['message']
+      '%errmessage' => $result['error']['message'],
     )), 'error');
   }
 
@@ -804,11 +819,11 @@ function _vision6_get_contact_list_by_id($listid) {
   else {
     watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
       '%errnum' => $result['error']['code'],
-      '%errmessage' => $result['error']['message']
+      '%errmessage' => $result['error']['message'],
     ), WATCHDOG_ERROR);
     drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
       '%errnum' => $result['error']['code'],
-      '%errmessage' => $result['error']['message']
+      '%errmessage' => $result['error']['message'],
     )), 'error');
     return FALSE;
   }
@@ -818,7 +833,7 @@ function _vision6_get_contact_list_by_id($listid) {
  * Helper to create Vision6 related fields.
  *
  * Take in field details and create them in the bundle requested with the
- * $bundle field
+ * $bundle field.
  *
  * @param string $bundle
  *   The bundle (content type) to add the fields to.
@@ -883,13 +898,24 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
  *   The field options if it has any.
  * @param string $confirmed
  *   If the user has confirmed deleting the field.
- * @param  string $field_type
+ * @param string $field_type
  *   The type of field, defaults to list_text.
  *
  * @return bool
  *   Returns TRUE if the delete option has been approved or FALSE otherwise.
  */
-function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $description, $weight, $options, $confirmed, $field_type = 'list_text', $multiple = FALSE) {
+function _vision6_check_field(
+  $bundle,
+  $enable,
+  $field_name,
+  $label,
+  $default,
+  $description,
+  $weight,
+  $options,
+  $confirmed,
+  $field_type = 'list_text',
+  $multiple = FALSE) {
   $instance = field_info_instance('node', $field_name, $bundle);
   $currently_enabled = !empty($instance);
 
@@ -918,7 +944,7 @@ function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $
 
       drupal_set_message(t('%label management has been disabled on the %bundle Content Type', array(
         '%bundle' => $bundle,
-        '%label' => $label
+        '%label' => $label,
       )));
     }
   }
@@ -957,9 +983,19 @@ function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $
  * @param bool $no_display
  *   Hide the field display.
  */
-function _vision6_create_instance($field_name, $field_type,
-                                  $required, $entity_type, $bundle, $label, $default, $options = array(),
-                                  $description = NULL, $weight = 0, $no_display = TRUE, $multiple = FALSE) {
+function _vision6_create_instance(
+  $field_name,
+  $field_type,
+  $required,
+  $entity_type,
+  $bundle,
+  $label,
+  $default,
+  $options = array(),
+  $description = NULL,
+  $weight = 0,
+  $no_display = TRUE,
+  $multiple = FALSE) {
 
   // Look for the field and instance.
   $field = field_info_field($field_name);
@@ -1059,7 +1095,7 @@ function _vision6_create_instance($field_name, $field_type,
 }
 
 /**
- * Funciton _vision6_field_initialise.
+ * Initialize handler.
  *
  * This functions parses all the nodes of the specified bundle, and
  * initialize the required field to the default value.

@@ -149,4 +149,5 @@ class Vision6SubscribeFormController extends DrupalDefaultEntityController imple
       }
     }
   }
+
 }

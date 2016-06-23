@@ -102,7 +102,6 @@ function vision6_subscribe_update_7001() {
   db_add_field('vision6_subscribe', 'approval_format', $field);
 }
 
-
 /**
  * Creates new fields for the database table {vision6_subscribe}.
  */
