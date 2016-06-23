@@ -905,17 +905,17 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
  *   Returns TRUE if the delete option has been approved or FALSE otherwise.
  */
 function _vision6_check_field(
-  $bundle,
-  $enable,
-  $field_name,
-  $label,
-  $default,
-  $description,
-  $weight,
-  $options,
-  $confirmed,
-  $field_type = 'list_text',
-  $multiple = FALSE) {
+    $bundle,
+    $enable,
+    $field_name,
+    $label,
+    $default,
+    $description,
+    $weight,
+    $options,
+    $confirmed,
+    $field_type = 'list_text',
+    $multiple = FALSE) {
   $instance = field_info_instance('node', $field_name, $bundle);
   $currently_enabled = !empty($instance);
 
@@ -984,18 +984,18 @@ function _vision6_check_field(
  *   Hide the field display.
  */
 function _vision6_create_instance(
-  $field_name,
-  $field_type,
-  $required,
-  $entity_type,
-  $bundle,
-  $label,
-  $default,
-  $options = array(),
-  $description = NULL,
-  $weight = 0,
-  $no_display = TRUE,
-  $multiple = FALSE) {
+    $field_name,
+    $field_type,
+    $required,
+    $entity_type,
+    $bundle,
+    $label,
+    $default,
+    $options = array(),
+    $description = NULL,
+    $weight = 0,
+    $no_display = TRUE,
+    $multiple = FALSE) {
 
   // Look for the field and instance.
   $field = field_info_field($field_name);
