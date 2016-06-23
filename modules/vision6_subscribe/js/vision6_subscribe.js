@@ -3,8 +3,11 @@
  * @file vision6.js.
  */
 
+/*global jQuery, Drupal, document, console, window*/
+
 (function ($) {
   'use strict';
+
   Drupal.behaviors.VisionSixSubscribe = {
     attach: function (context) {
       $(document).ready(function () {
