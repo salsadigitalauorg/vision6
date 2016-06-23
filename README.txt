@@ -7,4 +7,4 @@ Features
 
 Support
 =======
-salsadigital.com.au
+support@salsadigital.com.au
