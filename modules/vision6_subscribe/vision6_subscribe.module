@@ -515,8 +515,10 @@ function vision6_subscribe_entity_save(&$entity) {
  * @param object $entity
  *   Entity object.
  */
-function vision6_subscribe_entity_delete($entity) {
-  entity_get_controller('vision6_subscribe')->delete($entity);
+function vision6_subscribe_entity_delete($entity, $type) {
+  if ($type == 'vision6_subscribe') {
+    entity_get_controller('vision6_subscribe')->delete($entity);
+  }
 }
 
 /**
