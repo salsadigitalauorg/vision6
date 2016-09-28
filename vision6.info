@@ -4,4 +4,5 @@ package = Vision 6
 core = 7.x
 
 ; Add module dependencies here
+dependencies[] = entity
 dependencies[] = libraries
