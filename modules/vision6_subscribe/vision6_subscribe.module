@@ -112,7 +112,7 @@ function vision6_subscribe_permission() {
  */
 function vision6_subscribe_block_info() {
   $blocks = array();
-  $entities = vision6_subscribe_entity_load_multiple();
+  $entities = vision6_subscribe_load_multiple();
   foreach ($entities as $entity) {
     $blocks['vision6_subscribe' . $entity->vsid] = array(
       'info' => t('Vision 6 Subscribe:  @title', array('@title' => $entity->title)),
@@ -126,7 +126,7 @@ function vision6_subscribe_block_info() {
  * Implements hook_block_view().
  */
 function vision6_subscribe_block_view($delta = '') {
-  $entity = vision6_subscribe_entity_load(str_replace('vision6_subscribe', '', $delta));
+  $entity = vision6_subscribe_load(str_replace('vision6_subscribe', '', $delta));
   $block['subject'] = $entity->title;
   $block['content'] = drupal_get_form('vision6_subscribe_subscribe_form', $entity);
   return $block;
@@ -138,7 +138,7 @@ function vision6_subscribe_block_view($delta = '') {
 function vision6_subscribe_theme($existing, $type, $theme, $path) {
   $themes = array();
   $module_path = drupal_get_path('module', 'vision6_subscribe') . '/templates';
-  $entities = vision6_subscribe_entity_load_multiple();
+  $entities = vision6_subscribe_load_multiple();
   foreach ($entities as $entity) {
     $themes['vision6_subscribe' . $entity->vsid] = array(
       'template' => 'vision6-subscribe',
@@ -163,7 +163,7 @@ function vision6_subscribe_theme($existing, $type, $theme, $path) {
 function vision6_subscribe_list_entities_callback() {
   $content = array();
   // Load all of vision6 custom entities.
-  $entities = vision6_subscribe_entity_load_multiple();
+  $entities = vision6_subscribe_load_multiple();
   if (!empty($entities)) {
     foreach ($entities as $entity) {
       // Create tabular rows for our entities.
@@ -335,9 +335,9 @@ function vision6_subscribe_field_extra_fields() {
  * @return bool|object
  *   Entity object or FALSE.
  */
-function vision6_subscribe_entity_load($vsid = NULL, $reset = FALSE) {
+function vision6_subscribe_load($vsid = NULL, $reset = FALSE) {
   $vsids = !empty($vsid) ? array($vsid) : array();
-  $basic = vision6_subscribe_entity_load_multiple($vsids, array(), $reset);
+  $basic = vision6_subscribe_load_multiple($vsids, array(), $reset);
 
   return !empty($basic) ? reset($basic) : FALSE;
 }
@@ -348,7 +348,7 @@ function vision6_subscribe_entity_load($vsid = NULL, $reset = FALSE) {
  * We only need to pass this request along to entity_load(), which
  * will in turn call the load() method of our entity controller class.
  */
-function vision6_subscribe_entity_load_multiple($vsids = FALSE, $conditions = array(), $reset = FALSE) {
+function vision6_subscribe_load_multiple($vsids = FALSE, $conditions = array(), $reset = FALSE) {
   return entity_load('vision6_subscribe', $vsids, $conditions, $reset);
 }
 
