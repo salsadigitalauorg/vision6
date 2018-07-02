@@ -22,7 +22,6 @@ function vision6_subscribe_entity_info() {
         'bundle' => 'bundle_type',
       ),
       'label callback' => 'entity_class_label',
-      'uri callback' => 'entity_class_uri',
       'bundles' => array(
         'vision6_subscribe_bundle' => array(
           'label' => 'Vsion 6 Subscribe Form',
@@ -54,7 +53,7 @@ function vision6_subscribe_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  $items['admin/config/system/vision6/vision6_subscribe_bundle/form/%vision6_subscribe'] = array(
+  $items['admin/config/system/vision6/vision6_subscribe/form/%vision6_subscribe'] = array(
     'title callback' => 'vision6_subscribe_title_callback',
     'title arguments' => array(6),
     'page callback' => 'vision6_subscribe_view_entities_callback',
@@ -62,13 +61,13 @@ function vision6_subscribe_menu() {
     'access arguments' => array('view any vision6_subscribe entity'),
   );
 
-  $items['admin/config/system/vision6/vision6_subscribe_bundle/form/%vision6_subscribe/view'] = array(
+  $items['admin/config/system/vision6/vision6_subscribe/form/%vision6_subscribe/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
 
-  $items['admin/config/system/vision6/vision6_subscribe_bundle/form/%vision6_subscribe/edit'] = array(
+  $items['admin/config/system/vision6/vision6_subscribe/form/%vision6_subscribe/edit'] = array(
     'title' => 'Edit',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('vision6_subscribe_form', 6),
@@ -215,7 +214,7 @@ function vision6_subscribe_view_entities_callback($entity, $view_mode = 'default
   global $language;
 
   // Our entity type, for convenience.
-  $entity_type = 'vision6_subscribe';
+  $entity_type = 'vision6_subscribe_bundle';
   // Start setting up the content.
   $entity->content = array(
     '#view_mode' => $view_mode,
