@@ -10,15 +10,15 @@ define('VISION6_DEFAULT_ENDPOINT', 'http://www.vision6.com.au/api/jsonrpcserver.
  * Implements hook_libraries_info().
  */
 function vision6_libraries_info() {
-  $libraries['JsonRPC'] = array(
+  $libraries['JsonRPC'] = [
     'name' => 'JsonRPC',
     'vendor url' => 'https://github.com/fguillot/JsonRPC',
     'download url' => 'https://github.com/fguillot/JsonRPC/archive/master.zip',
     'version' => 'master',
-    'files' => array(
-      'php' => array('src/JsonRPC/Client.php'),
-    ),
-  );
+    'files' => [
+      'php' => ['src/JsonRPC/Client.php'],
+    ],
+  ];
 
   return $libraries;
 }
@@ -27,29 +27,29 @@ function vision6_libraries_info() {
  * Implements hook_menu().
  */
 function vision6_menu() {
-  $items['admin/config/development/vision6'] = array(
+  $items['admin/config/development/vision6'] = [
     'title' => 'Vision6 sandbox',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('vision6_sandbox'),
+    'page arguments' => ['vision6_sandbox'],
     'access callback' => 'user_access',
-    'access arguments' => array('manage vision6 settings'),
-  );
+    'access arguments' => ['manage vision6 settings'],
+  ];
 
-  $items['admin/config/system/vision6'] = array(
+  $items['admin/config/system/vision6'] = [
     'title' => 'Vision6 settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('vision6_settings'),
+    'page arguments' => ['vision6_settings'],
     'access callback' => 'user_access',
-    'access arguments' => array('manage vision6 settings'),
-  );
+    'access arguments' => ['manage vision6 settings'],
+  ];
 
-  $items['admin/config/content/vision6'] = array(
+  $items['admin/config/content/vision6'] = [
     'title' => 'Vision6 Content Settings',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('vision6_content_settings'),
+    'page arguments' => ['vision6_content_settings'],
     'access callback' => 'user_access',
-    'access arguments' => array('manage vision6 settings'),
-  );
+    'access arguments' => ['manage vision6 settings'],
+  ];
 
   return $items;
 }
@@ -58,34 +58,34 @@ function vision6_menu() {
  * Form callback for Vision6 settings.
  */
 function vision6_settings($form, &$form_state) {
-  $form['vision6_option'] = array(
+  $form['vision6_option'] = [
     '#type' => 'fieldset',
     '#title' => t('Vision 6 API Settings'),
     '#access' => user_access('manage vision6 settings'),
     '#collapsible' => TRUE,
     '#collapsed' => variable_get('vision6_api_key') != '' && variable_get('vision6_endpoint', '') != '',
-  );
+  ];
 
-  $form['vision6_option']['vision6_api_key'] = array(
+  $form['vision6_option']['vision6_api_key'] = [
     '#type' => 'textfield',
     '#title' => t('Vision6 API key'),
     '#description' => t('Get your API key <a href="http://developers.vision6.com.au/guide/getting-started">here</a>'),
     '#default_value' => variable_get('vision6_api_key'),
-  );
+  ];
 
-  $form['vision6_option']['vision6_endpoint'] = array(
+  $form['vision6_option']['vision6_endpoint'] = [
     '#type' => 'textfield',
     '#title' => t('API Endpoint'),
     '#default_value' => variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0'),
-  );
+  ];
 
-  $form['vision6_bundles'] = array(
+  $form['vision6_bundles'] = [
     '#type' => 'fieldset',
     '#title' => t('Vision 6 Content Types'),
     '#access' => user_access('manage vision6 settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-  );
+  ];
 
   // Add a checkbox that requires them to say "I do", but don't show it,
   // (#access == FALSE) unless they're deleting.
@@ -93,10 +93,10 @@ function vision6_settings($form, &$form_state) {
   if (!empty($form_state['delete_instances'])) {
     $type_plural = format_plural(count($form_state['delete_instances']), 'type', 'types');
     $affirmation = t('I understand that all field data will be permanently removed from the Content Type @type_plural %node_types.',
-      array(
+      [
         '@type_plural' => $type_plural,
         '%node_types' => implode(', ', $form_state['delete_instances']),
-      )
+      ]
     );
     $visible = TRUE;
   }
@@ -104,34 +104,34 @@ function vision6_settings($form, &$form_state) {
   $node_types = node_type_get_types();
 
   foreach ($node_types as $node_type) {
-    $form['vision6_bundles'][$node_type->type] = array(
+    $form['vision6_bundles'][$node_type->type] = [
       '#type' => 'checkbox',
       '#title' => $node_type->name,
-      '#description' => t('Add vision 6 to %nodetype nodes', array('%nodetype' => $node_type->name)),
+      '#description' => t('Add vision 6 to %nodetype nodes', ['%nodetype' => $node_type->name]),
       '#default_value' => variable_get('vision6_' . $node_type->type, FALSE),
-    );
+    ];
   }
 
-  $form['error'] = array(
+  $form['error'] = [
     '#type' => 'fieldset',
     '#title' => t('Confirm deleting your field'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
     '#access' => $visible,
     '#weight' => -40,
-  );
+  ];
 
-  $form['error']['confirmation'] = array(
+  $form['error']['confirmation'] = [
     '#type' => 'checkbox',
     '#title' => !empty($affirmation) ? $affirmation : '',
     '#default_value' => FALSE,
     '#access' => FALSE,
-  );
+  ];
 
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => t('Submit'),
-  );
+  ];
 
   // If they're deleting, show the confirmation checkbox.
   if (!empty($form_state['delete_instances'])) {
@@ -148,7 +148,7 @@ function vision6_settings($form, &$form_state) {
  */
 function vision6_settings_validate($form, &$form_state) {
   if (!empty($form_state['delete_instances']) && empty($form_state['values']['confirmation'])) {
-    form_set_error('error', t('Please check the "I understand" checkbox to indicate you understand that all shipping options data in these fields will be deleted: %fields.', array('%fields' => implode(', ', $form_state['delete_instances']))));
+    form_set_error('error', t('Please check the "I understand" checkbox to indicate you understand that all shipping options data in these fields will be deleted: %fields.', ['%fields' => implode(', ', $form_state['delete_instances'])]));
   }
   else {
     $form_state['set_var'] = TRUE;
@@ -165,7 +165,7 @@ function vision6_settings_submit($form, &$form_state) {
   $node_types = node_type_get_types();
 
   // Create the delete array.
-  $form_state['delete_instances'] = array();
+  $form_state['delete_instances'] = [];
 
   foreach ($node_types as $node_type) {
     $enable = !empty($form_state['values'][$node_type->type]) ? $form_state['values'][$node_type->type] : '';
@@ -173,7 +173,7 @@ function vision6_settings_submit($form, &$form_state) {
     $default = FALSE;
     $field_name = 'field_vis6_published_as_synd';
     $label = 'Publish this content as syndication';
-    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, [], $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Syndication type.
     $default = 'email';
@@ -193,7 +193,7 @@ function vision6_settings_submit($form, &$form_state) {
     $default = FALSE;
     $field_name = 'field_vis6_inc_body_synd';
     $label = 'Show page content';
-    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, [], $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Contact Type.
     $default = NULL;
@@ -225,41 +225,41 @@ function vision6_settings_submit($form, &$form_state) {
  * Form callback for Vision6 settings page.
  */
 function vision6_content_settings($form, &$form_state) {
-  $form['vision6_content'] = array(
+  $form['vision6_content'] = [
     '#access' => user_access('access vision6 publish'),
     '#type' => 'fieldset',
     '#title' => t('Content Settings'),
     '#access' => user_access('access vision6 publish'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
-  );
+  ];
 
-  $form['vision6_content']['vision6_title_style'] = array(
+  $form['vision6_content']['vision6_title_style'] = [
     '#type' => 'textfield',
     '#title' => t('Vision6 Email Title Style'),
     '#description' => t('This must be valid css to be placed in the style attribute wrapped around the Title of the article within the email. Leave this blank if you do not know how to use this field.'),
     '#default_value' => variable_get('vision6_title_style', ''),
-  );
+  ];
 
   $header = variable_get('vision6_header');
-  $form['vision6_content']['vision6_header'] = array(
+  $form['vision6_content']['vision6_header'] = [
     '#type' => 'text_format',
     '#title' => t('Vision6 Email Header'),
     '#description' => t('The header text will appear at the top of Vision6 emails'),
     '#default_value' => $header['value'],
     '#rows' => 10,
     '#format' => empty($header['format']) ? 'full_html' : $header['format'],
-  );
+  ];
 
   $footer = variable_get('vision6_footer');
-  $form['vision6_content']['vision6_footer'] = array(
+  $form['vision6_content']['vision6_footer'] = [
     '#type' => 'text_format',
     '#title' => t('Vision6 Email Footer'),
     '#description' => t('The header text will appear at the top of Vision6 emails'),
     '#default_value' => $footer['value'],
     '#rows' => 10,
     '#format' => empty($footer['format']) ? 'full_html' : $footer['format'],
-  );
+  ];
 
   return system_settings_form($form);
 }
@@ -268,120 +268,120 @@ function vision6_content_settings($form, &$form_state) {
  * Form callback for the API testing page.
  */
 function vision6_sandbox($form, &$form_state) {
-  $form['addMessage'] = array(
+  $form['addMessage'] = [
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#tree' => TRUE,
     '#title' => 'addMessage call',
     '#description' => l(t('addMessage API documentation'), 'http://developers.vision6.com.au/3.0/method/addmessage'),
-  );
+  ];
 
-  $form['addMessage']['api_key'] = array(
+  $form['addMessage']['api_key'] = [
     '#type' => 'value',
     '#value' => variable_get('vision6_api_key'),
-  );
+  ];
 
   // @todo: Consider adding SMS to the type.
-  $form['addMessage']['type'] = array(
+  $form['addMessage']['type'] = [
     '#type' => 'value',
     '#value' => 'email',
-  );
+  ];
 
-  $form['addMessage']['name'] = array(
+  $form['addMessage']['name'] = [
     '#type' => 'textfield',
     '#title' => 'Name',
-  );
+  ];
 
-  $form['addMessage']['subject'] = array(
+  $form['addMessage']['subject'] = [
     '#type' => 'textfield',
     '#title' => 'Subject',
-  );
+  ];
 
   // @todo: Need to review the differences between these, not clear in
   // documentation.
-  $form['addMessage']['email_type'] = array(
+  $form['addMessage']['email_type'] = [
     '#type' => 'select',
     '#title' => 'Email Type',
-    '#options' => array(
+    '#options' => [
       'html' => t('HTML'),
       'raw_html' => t('Raw HTML'),
-    ),
-  );
+    ],
+  ];
 
-  $form['addMessage']['html_content'] = array(
+  $form['addMessage']['html_content'] = [
     '#type' => 'textarea',
     '#title' => 'HTML Content',
-  );
+  ];
 
-  $form['addMessage']['actions'] = array(
+  $form['addMessage']['actions'] = [
     '#type' => 'container',
-  );
+  ];
 
-  $form['addMessage']['actions']['submit'] = array(
+  $form['addMessage']['actions']['submit'] = [
     '#type' => 'submit',
     '#value' => 'addMessage()',
-    '#submit' => array('vision6_sandbox_add_message_submit'),
-  );
+    '#submit' => ['vision6_sandbox_add_message_submit'],
+  ];
 
-  $form['addBatch'] = array(
+  $form['addBatch'] = [
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#tree' => TRUE,
     '#title' => 'addBatch call',
     '#description' => l(t('addBatch API documentation'), 'http://developers.vision6.com.au/3.0/method/addbatch'),
-  );
+  ];
 
-  $form['addBatch']['api_key'] = array(
+  $form['addBatch']['api_key'] = [
     '#type' => 'value',
     '#value' => variable_get('vision6_api_key'),
-  );
+  ];
 
-  $form['addBatch']['message_id'] = array(
+  $form['addBatch']['message_id'] = [
     '#type' => 'textfield',
     '#title' => 'Message ID',
-  );
+  ];
 
-  $form['addBatch']['is_test'] = array(
+  $form['addBatch']['is_test'] = [
     '#type' => 'value',
     '#value' => TRUE,
-  );
+  ];
 
-  $form['addBatch']['contact_populations'] = array(
+  $form['addBatch']['contact_populations'] = [
     '#type' => 'fieldset',
     '#title' => 'Contacts',
     '#tree' => TRUE,
-    0 => array(
+    0 => [
       '#tree' => TRUE,
-    ),
-  );
+    ],
+  ];
 
-  $form['addBatch']['contact_populations'][0]['type'] = array(
+  $form['addBatch']['contact_populations'][0]['type'] = [
     '#type' => 'select',
     '#title' => 'Type',
-    '#options' => array(
+    '#options' => [
       'contacts' => t('Contacts'),
       'list' => t('List'),
       'unsent' => t('Unsent'),
-    ),
-  );
+    ],
+  ];
 
-  $form['addBatch']['contact_populations'][0]['list_id'] = array(
+  $form['addBatch']['contact_populations'][0]['list_id'] = [
     '#type' => 'textfield',
     '#title' => 'List ID',
     '#default_value' => 440550,
-  );
+  ];
 
-  $form['addBatch']['actions'] = array(
+  $form['addBatch']['actions'] = [
     '#type' => 'container',
-  );
+  ];
 
-  $form['addBatch']['actions']['submit'] = array(
+  $form['addBatch']['actions']['submit'] = [
     '#type' => 'submit',
     '#value' => 'addBatch()',
-    '#submit' => array('vision6_sandbox_add_batch_submit'),
-  );
+    '#submit' => ['vision6_sandbox_add_batch_submit'],
+  ];
 
   return $form;
 }
@@ -394,7 +394,7 @@ function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
     $client = _vision6_get_api_client();
   }
   catch (Exception $e) {
-    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
+    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', [], WATCHDOG_CRITICAL);
     drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
   }
 
@@ -411,7 +411,7 @@ function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
   }
 
   drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
-  drupal_set_message(t('Message ID: %message', array('%message' => $message_id)));
+  drupal_set_message(t('Message ID: %message', ['%message' => $message_id]));
 }
 
 /**
@@ -431,7 +431,7 @@ function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
   $api_key = variable_get('vision6_api_key');
   $batch_id = $client->addBatch($api_key, $values['message_id'], $values['contact_populations']);
   drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
-  drupal_set_message(t('Batch ID: %batch', array('%batch' => $batch_id)));
+  drupal_set_message(t('Batch ID: %batch', ['%batch' => $batch_id]));
 }
 
 /**
@@ -458,16 +458,16 @@ function _vision6_get_api_client() {
  * Implements hook_permission().
  */
 function vision6_permission() {
-  return array(
-    'access vision6 publish' => array(
+  return [
+    'access vision6 publish' => [
       'title' => t('Publish as Syndication'),
       'description' => t('Publish content to Vision6 system'),
-    ),
-    'manage vision6 settings' => array(
+    ],
+    'manage vision6 settings' => [
       'title' => t('Manage Vision 6 API Settings'),
       'description' => t('Change the API key and endpoint for Vision 6'),
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -485,14 +485,6 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
   // spec.
   drupal_add_js(drupal_get_path('module', 'vision6') . '/js/vision6.js', 'file');
 
-  if (user_access('access vision6 publish') && !user_access('publish revisions')) {
-    $form['options']['#access'] = TRUE;
-    $form['options']['status']['#access'] = FALSE;
-    $form['options']['status']['#default_value'] = FALSE;
-    $form['options']['promote']['#access'] = FALSE;
-    $form['options']['sticky']['#access'] = FALSE;
-  }
-
   // Get rid of the node fields and move them to a fieldset.
   $field_vis6_published_as_synd = $form['field_vis6_published_as_synd'];
   $field_vis6_syndication_type = $form['field_vis6_syndication_type'];
@@ -504,31 +496,31 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
 
   $form['options']['field_vis6_new_published_as_synd'] = $field_vis6_published_as_synd;
 
-  $form['options']['syndication'] = array(
+  $form['options']['syndication'] = [
     '#access' => user_access('access vision6 publish'),
     '#type' => 'fieldset',
     '#title' => t('Syndication options'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
     '#weight' => 100,
-    '#states' => array(
-      'visible' => array(
-        ':input[name="field_vis6_new_published_as_synd[und]"]' => array(
+    '#states' => [
+      'visible' => [
+        ':input[name="field_vis6_new_published_as_synd[und]"]' => [
           'checked' => TRUE,
-        ),
-      ),
-    ),
-  );
+        ],
+      ],
+    ],
+  ];
 
   $form['options']['syndication']['field_vis6_new_syndication_type'] = $field_vis6_syndication_type;
 
   $form['options']['syndication']['field_vis6_new_email_type'] = $field_vis6_email_type;
 
-  $form['options']['syndication']['contact_populations'] = array(
+  $form['options']['syndication']['contact_populations'] = [
     '#type' => 'fieldset',
     '#title' => 'Contacts',
     '#weight' => 110,
-  );
+  ];
 
   $form['options']['syndication']['field_vis6_new_inc_body_synd'] = $field_vis6_inc_body_synd;
 
@@ -608,36 +600,26 @@ function vision6_workbench_moderation_transition($node, $previous_state, $new_st
 function _vision6_node_beforesave($node) {
   global $base_url;
 
-  $wrapper = entity_metadata_wrapper('node', $node);
+  try {
+    $wrapper = entity_metadata_wrapper('node', $node);
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_exit();
+  }
 
   if (!variable_get('vision6_' . $node->type, FALSE) || !user_access('access vision6 publish')) {
     return;
   }
 
-  if (!user_access('publish revisions')) {
-    if (!is_null($node->nid) && !empty($node->original)) {
-      $node->current_status = $node->original->status;
-      $node->current_title = $node->original->title;
-      $node->current_comment = $node->original->comment;
-      $node->current_promote = $node->original->promote;
-      $node->current_sticky = $node->original->sticky;
-      $node->revision_moderation = 1;
-    }
+  if (module_exists('workbench_moderation') && ($node->workbench_moderation) && $node->workbench_moderation['current']->state != 'published') {
+    return;
+  }
+  elseif (!$wrapper->status->value()) {
     return;
   }
 
-  if (isset($node->workbench_moderation)) {
-    if ($node->workbench_moderation['current']->state != 'published') {
-      return;
-    }
-  }
-  else {
-    if (!$wrapper->status->value()) {
-      return;
-    }
-  }
-
-  if (isset($wrapper->field_vis6_published_as_synd)) {
+  if (!empty($node->field_vis6_published_as_synd)) {
     if (!$wrapper->field_vis6_published_as_synd->value()) {
       return;
     }
@@ -646,13 +628,13 @@ function _vision6_node_beforesave($node) {
     return;
   }
 
-  $add_message = array(
+  $add_message = [
     'type' => $wrapper->field_vis6_syndication_type->value(),
     'name' => $node->title,
     'email_type' => $wrapper->field_vis6_email_type->value(),
     'subject' => $node->title,
-    'html_content' => '<div style="' . variable_get('vision6_title_style', '') . '">' . l($node->title, url('node/' . $node->nid, array('absolute' => TRUE))),
-  );
+    'html_content' => '<div style="' . variable_get('vision6_title_style', '') . '">' . l($node->title, url('node/' . $node->nid, ['absolute' => TRUE])),
+  ];
 
   if ($add_message['type'] == 'email') {
     $add_message['email_type'] = $wrapper->field_vis6_email_type->value();
@@ -687,13 +669,13 @@ function _vision6_node_beforesave($node) {
     $var_footer = str_replace('src="/sites', 'src="' . $base_url . '/sites', $var_footer);
     $add_message['html_content'] .= '<br/><br/>' . check_markup($var_footer['value'], $var_footer['format']);
   }
-  $add_batch = array(
-    array(
+  $add_batch = [
+    [
       'type' => $wrapper->field_vis6_type->value(),
       'list_id' => $wrapper->field_vis6_contact_list_id->value(),
       'time' => 'now',
-    ),
-  );
+    ],
+  ];
 
   try {
     $client = _vision6_get_api_client();
@@ -749,7 +731,7 @@ function _vision6_node_beforesave($node) {
  *   Contact list array keyed by contact ID.
  */
 function _vision6_get_contact_list_id() {
-  $results = array();
+  $results = [];
   // Get the client list ids from Vision 6.
   try {
     $client = _vision6_get_api_client();
@@ -761,7 +743,7 @@ function _vision6_get_contact_list_id() {
 
   $api_key = variable_get('vision6_api_key');
   try {
-    $result = $client->searchLists($api_key, array(), 0, 0, 'name', 'ASC');
+    $result = $client->searchLists($api_key, [], 0, 0, 'name', 'ASC');
   }
   catch (Exception $e) {
     watchdog_exception('vision6', $e);
@@ -774,14 +756,14 @@ function _vision6_get_contact_list_id() {
     }
   }
   else {
-    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', [
       '%errnum' => $result['error']['code'],
       '%errmessage' => $result['error']['message'],
-    ), WATCHDOG_ERROR);
-    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+    ], WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', [
       '%errnum' => $result['error']['code'],
       '%errmessage' => $result['error']['message'],
-    )), 'error');
+    ]), 'error');
   }
 
   return $results;
@@ -803,10 +785,10 @@ function _vision6_get_contact_list_by_id($listid) {
   }
 
   try {
-    $result = $client->getListById(array(
+    $result = $client->getListById([
       variable_get('vision6_api_key'),
       $listid,
-    ));
+    ]);
   }
   catch (Exception $e) {
     watchdog_exception('vision6', $e);
@@ -817,14 +799,15 @@ function _vision6_get_contact_list_by_id($listid) {
     return $result;
   }
   else {
-    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', [
       '%errnum' => $result['error']['code'],
       '%errmessage' => $result['error']['message'],
-    ), WATCHDOG_ERROR);
-    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+    ], WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', [
       '%errnum' => $result['error']['code'],
       '%errmessage' => $result['error']['message'],
-    )), 'error');
+    ]), 'error');
+
     return FALSE;
   }
 }
@@ -857,7 +840,7 @@ function _vision6_get_contact_list_by_id($listid) {
  *   The list type field can be multiple.
  */
 function _vision6_create_fields($bundle, $field_name, $label, $options, $default, $description, $enable, &$form_state, $field_type = 'list_text', $multiple = FALSE) {
-  $weights = array(
+  $weights = [
     'field_vis6_published_as_synd' => 100,
     'field_vis6_syndication_type' => 101,
     'field_vis6_email_type' => 102,
@@ -865,7 +848,7 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
     'field_vis6_type' => 104,
     'field_vis6_contact_list_id' => 105,
     'field_vis6_previous_message_id' => 106,
-  );
+  ];
   $resubmit = _vision6_check_field($bundle, $enable, $field_name, $label, $default, $description, $weights[$field_name], $options, $form_state['values']['confirmation'], $field_type, $multiple);
 
   // If the function returned FALSE, show the please confirm checkbox.
@@ -905,17 +888,17 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
  *   Returns TRUE if the delete option has been approved or FALSE otherwise.
  */
 function _vision6_check_field(
-    $bundle,
-    $enable,
-    $field_name,
-    $label,
-    $default,
-    $description,
-    $weight,
-    $options,
-    $confirmed,
-    $field_type = 'list_text',
-    $multiple = FALSE
+  $bundle,
+  $enable,
+  $field_name,
+  $label,
+  $default,
+  $description,
+  $weight,
+  $options,
+  $confirmed,
+  $field_type = 'list_text',
+  $multiple = FALSE
 ) {
   $instance = field_info_instance('node', $field_name, $bundle);
   $currently_enabled = !empty($instance);
@@ -926,10 +909,10 @@ function _vision6_check_field(
     // Set default field values of every existing node of $bundle bundle to 0.
     _vision6_field_initialise('node', $bundle, $field_name, $default);
 
-    drupal_set_message(t('%label has been enabled on the %type Content Type', array(
+    drupal_set_message(t('%label has been enabled on the %type Content Type', [
       '%type' => $bundle,
       '%label' => $label,
-    )));
+    ]));
   }
   elseif (!$enable && $currently_enabled) {
     // Conversely, if they *don't* want it and it's currently enabled,
@@ -943,10 +926,10 @@ function _vision6_check_field(
       // Otherwise they already have clicked it and we can delete.
       field_delete_instance($instance);
 
-      drupal_set_message(t('%label management has been disabled on the %bundle Content Type', array(
+      drupal_set_message(t('%label management has been disabled on the %bundle Content Type', [
         '%bundle' => $bundle,
         '%label' => $label,
-      )));
+      ]));
     }
   }
 
@@ -985,18 +968,18 @@ function _vision6_check_field(
  *   Hide the field display.
  */
 function _vision6_create_instance(
-    $field_name,
-    $field_type,
-    $required,
-    $entity_type,
-    $bundle,
-    $label,
-    $default,
-    $options = array(),
-    $description = NULL,
-    $weight = 0,
-    $no_display = TRUE,
-    $multiple = FALSE
+  $field_name,
+  $field_type,
+  $required,
+  $entity_type,
+  $bundle,
+  $label,
+  $default,
+  $options = [],
+  $description = NULL,
+  $weight = 0,
+  $no_display = TRUE,
+  $multiple = FALSE
 ) {
 
   // Look for the field and instance.
@@ -1005,51 +988,51 @@ function _vision6_create_instance(
 
   // If there is no field then create one based on the passed in values.
   if (empty($field)) {
-    $field = array(
+    $field = [
       'field_name' => $field_name,
       'type' => $field_type,
       'cardinality' => 1,
       'translatable' => FALSE,
       'locked' => FALSE,
-      'default_value' => array(array('value' => $default)),
-    );
+      'default_value' => [['value' => $default]],
+    ];
     // If it shouldn't be displayed hide it.
     if ($no_display) {
-      $field['display'] = array(
-        'default' => array(
+      $field['display'] = [
+        'default' => [
           'label' => 'above',
           'type' => 'hidden',
-        ),
-      );
+        ],
+      ];
     }
     // If there are passed in options, create them for the select field.
     if (is_array($options)) {
       if (count($options)) {
-        $field['settings'] = array(
+        $field['settings'] = [
           'allowed_values' => $options,
           'allowed_values_function' => '',
-        );
-        $field['widget'] = array(
+        ];
+        $field['widget'] = [
           'type' => 'select',
-        );
+        ];
       }
     }
     else {
-      $field['settings'] = array(
-        'allowed_values' => array(),
+      $field['settings'] = [
+        'allowed_values' => [],
         'allowed_values_function' => $options,
-      );
-      $field['widget'] = array(
+      ];
+      $field['widget'] = [
         'type' => 'select',
-      );
+      ];
     }
 
     // If the field type is boolean, set the values.
     if ($field_type == 'list_boolean') {
-      $field['settings'] = array(
-        'allowed_values' => array(0, 1),
+      $field['settings'] = [
+        'allowed_values' => [0, 1],
         'allowed_values_function' => '',
-      );
+      ];
     }
     $field['#multiple'] = $multiple;
     field_create_field($field);
@@ -1057,38 +1040,38 @@ function _vision6_create_instance(
 
   // If there is no field instance then create one.
   if (empty($instance)) {
-    $instance = array(
+    $instance = [
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
       'label' => $label,
       'required' => $required,
-      'widget' => array(
+      'widget' => [
         'weight' => $weight,
-      ),
-      'settings' => array(),
+      ],
+      'settings' => [],
       'description' => $description,
-      'default_value' => array(array('value' => $default)),
-    );
+      'default_value' => [['value' => $default]],
+    ];
 
     // If it shouldn't be displayed hide it.
     if ($no_display) {
-      $instance['display'] = array(
-        'default' => array(
+      $instance['display'] = [
+        'default' => [
           'label' => 'above',
           'type' => 'hidden',
-        ),
-      );
+        ],
+      ];
     }
 
     // If it's a boolean st it's allowed values.
     if ($field_type == 'list_boolean') {
-      $instance['widget'] = array(
+      $instance['widget'] = [
         'type' => 'options_onoff',
-        'settings' => array(
+        'settings' => [
           'display_label' => TRUE,
-        ),
-      );
+        ],
+      ];
     }
 
     // Create the field instance.
@@ -1111,7 +1094,7 @@ function _vision6_create_instance(
  */
 function _vision6_field_initialise($bundle, $field_name, $default) {
   // Load every node of $bundle type.
-  $nodes = node_load_multiple(array(), array('type' => $bundle));
+  $nodes = node_load_multiple([], ['type' => $bundle]);
   // Parses each node to initialize its stock value.
   foreach ($nodes as $node) {
     $wrapper = entity_metadata_wrapper('node', $node);
@@ -1127,9 +1110,9 @@ function _vision6_field_initialise($bundle, $field_name, $default) {
  *    The array used mainly in forms.
  */
 function vision6_get_syndication_types() {
-  return array(
+  return [
     'email' => t('Email'),
-  );
+  ];
 }
 
 /**
@@ -1139,9 +1122,9 @@ function vision6_get_syndication_types() {
  *   The array of email types.
  */
 function vision6_get_email_types() {
-  return array(
+  return [
     'html' => t('HTML'),
-  );
+  ];
 }
 
 /**
@@ -1151,8 +1134,8 @@ function vision6_get_email_types() {
  *   The array used mainly in forms.
  */
 function vision6_get_type() {
-  return array(
+  return [
     'list' => t('Send to all contacts in the List'),
     'unsent' => t('Only send to Contacts who have not been sent the Message'),
-  );
+  ];
 }
