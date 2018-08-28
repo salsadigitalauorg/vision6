@@ -1,8 +1,7 @@
 name = Vision6 Integration Subscribe Forms
-description = ""
+description = "Provides Vision6 entities and forms."
 package = Vision 6
 core = 7.x
-
 
 ; Add module dependencies here
 dependencies[] = vision6

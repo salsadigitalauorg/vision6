@@ -1,10 +1,15 @@
 /**
+ * @file
+ * vision6_subscribe.js
+ *
  * Javascript for vision6_subscribe module.
- * @file vision6.js.
  */
+
+/* global jQuery, Drupal, document, console, window */
 
 (function ($) {
   'use strict';
+
   Drupal.behaviors.VisionSixSubscribe = {
     attach: function (context) {
       $(document).ready(function () {
@@ -16,7 +21,7 @@
         var validateForm = function (sub_form) {
           sub_form.find('[id^="subscribe_message"]').html('');
           sub_form.find('[id^="subscribe_message"]').hide();
-          // validate the form via js before it gets submitted
+          // Validate the form via js before it gets submitted.
           if (Drupal.settings.vision6_subscribe.email) {
             if (sub_form.find('[id^="edit-email"]').val() === '') {
               sub_form.find('[id^="subscribe_message"]').html(sub_form.find('[id^="subscribe_message"]').html() + '<p>The ' + Drupal.settings.vision6_subscribe.email + ' field is mandatory</p>');
@@ -36,8 +41,10 @@
           else {
             sub_form.find('[id^="subscribe_message"]').show();
           }
-        }
-        $('[id^="-vision6-subscribe-subscribe-form"] [id^="edit-submit"]').click(function () {validateForm($(this).parent().parent().parent()); return false; });
+        };
+        $('[id^="-vision6-subscribe-subscribe-form"] [id^="edit-submit"]').click(function () {
+          validateForm($(this).parent().parent().parent()); return false;
+        });
       });
     }
   };

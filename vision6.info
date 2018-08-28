@@ -1,7 +1,8 @@
 name = Vision6 Integration
-description = ""
+description = "Provides integration with Vision6 bulk email service."
 package = Vision 6
 core = 7.x
 
 ; Add module dependencies here
+dependencies[] = entity
 dependencies[] = libraries

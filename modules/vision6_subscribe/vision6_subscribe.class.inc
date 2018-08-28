@@ -5,7 +5,7 @@
  */
 
 /**
- * VisionSubscribeFormControllerInterface definition.
+ * Vision6SubscribeFormControllerInterface definition.
  *
  * We create an interface here because anyone could come along and
  * use hook_entity_info_alter() to change our controller class.
@@ -14,15 +14,15 @@
  *
  * @see hook_entity_info_alter()
  */
-interface VisionSubscribeFormControllerInterface extends DrupalEntityControllerInterface {
+interface Vision6SubscribeFormControllerInterface extends DrupalEntityControllerInterface {
 
   /**
-   * Create an entity.
+   * Creates an entity.
    */
   public function create();
 
   /**
-   * Save an entity.
+   * Saves an entity.
    *
    * @param object $entity
    *   The entity to save.
@@ -30,7 +30,7 @@ interface VisionSubscribeFormControllerInterface extends DrupalEntityControllerI
   public function save($entity);
 
   /**
-   * Delete an entity.
+   * Deletes an entity.
    *
    * @param object $entity
    *   The entity to delete.
@@ -40,15 +40,15 @@ interface VisionSubscribeFormControllerInterface extends DrupalEntityControllerI
 }
 
 /**
- * VisionSubscribeFormController extends DrupalDefaultEntityController.
+ * Vision6SubscribeFormController extends DrupalDefaultEntityController.
  *
  * Our subclass of DrupalDefaultEntityController lets us add a few
  * important create, update, and delete methods.
  */
-class VisionSubscribeFormController extends DrupalDefaultEntityController implements VisionSubscribeFormControllerInterface {
+class Vision6SubscribeFormController extends DrupalDefaultEntityController implements Vision6SubscribeFormControllerInterface {
 
   /**
-   * Create and return a new vision6_subscribe entity.
+   * Creates and return a new vision6_subscribe entity.
    */
   public function create() {
     $entity = new stdClass();
@@ -107,7 +107,7 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
   }
 
   /**
-   * Delete a single entity.
+   * Deletes a single entity.
    *
    * Really a convenience function for deleteMultiple().
    */
@@ -116,13 +116,15 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
   }
 
   /**
-   * Delete one or more vision6_subscribe entities.
+   * Deletes one or more vision6_subscribe entities.
    *
    * Deletion is unfortunately not supported in the base
    * DrupalDefaultEntityController class.
    *
    * @param array $entities
    *   An array of entity IDs or a single numeric ID.
+   *
+   * @throws Exception
    */
   public function deleteMultiple($entities) {
     /* @var $entities type hinting */
@@ -149,7 +151,3 @@ class VisionSubscribeFormController extends DrupalDefaultEntityController implem
   }
 
 }
-
-/**
- * @} End of "defgroup vision6_subscribe".
- */

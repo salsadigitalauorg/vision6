@@ -8,20 +8,16 @@
  * Implements hook_install().
  *
  * Perform actions to set up the site for this profile.
- *
- * @see vision6_install()
  */
 function vision6_install() {
-  // Empty installation hooks are not necessary.
-  drupal_set_message('Vision6 installed.', 'status');
+  $t = get_t();
+  drupal_set_message($t('Vision6 installed'), 'status');
 }
 
 /**
  * Implements hook_uninstall().
  *
  * Perform actions to set up the site for this profile.
- *
- * @see vision6_install()
  */
 function vision6_uninstall() {
   variable_del('vision6_api_key');

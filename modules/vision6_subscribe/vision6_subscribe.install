@@ -1,21 +1,11 @@
 <?php
-
 /**
- * Implements hook_install().
- *
- * Perform actions to set up the site for this profile.
- *
- * @see vision6_subscribe_install()
+ * @file
+ * vision6_subscribe.install
  */
-function vision6_subscribe_install() {
-}
 
 /**
  * Implements hook_uninstall().
- *
- * Perform actions to set up the site for this profile.
- *
- * @see vision6_subscribe_install()
  */
 function vision6_subscribe_uninstall() {
   field_attach_delete_bundle('vision6_subscribe', 'first_example_bundle');
@@ -25,8 +15,6 @@ function vision6_subscribe_uninstall() {
  * Implements hook_schema().
  */
 function vision6_subscribe_schema() {
-  // The name of the table can be any name we choose. However, namespacing the
-  // table with the module name is best practice.
   $schema['vision6_subscribe'] = array(
     'description' => 'The base table for our vision6_subscribe entity.',
     'fields' => array(
@@ -98,11 +86,12 @@ function vision6_subscribe_schema() {
     ),
     'primary key' => array('vsid'),
   );
+
   return $schema;
 }
 
 /**
- * Create new fields for the database table {vision6_subscribe}.
+ * Creates new fields for the database table {vision6_subscribe}.
  */
 function vision6_subscribe_update_7001() {
   $field = array(
@@ -113,9 +102,8 @@ function vision6_subscribe_update_7001() {
   db_add_field('vision6_subscribe', 'approval_format', $field);
 }
 
-
 /**
- * Create new fields for the database table {vision6_subscribe}.
+ * Creates new fields for the database table {vision6_subscribe}.
  */
 function vision6_subscribe_update_7002() {
   $field = array(

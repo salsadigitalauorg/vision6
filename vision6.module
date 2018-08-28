@@ -4,12 +4,10 @@
  * Vision6 main module, which required by other sub modules.
  */
 
+define('VISION6_DEFAULT_ENDPOINT', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0');
+
 /**
  * Implements hook_libraries_info().
- *
- * Makes the JsonRPC library available.
- *
- * @see hook_libraries_info()
  */
 function vision6_libraries_info() {
   $libraries['JsonRPC'] = array(
@@ -27,8 +25,6 @@ function vision6_libraries_info() {
 
 /**
  * Implements hook_menu().
- *
- * @see hook_menu()
  */
 function vision6_menu() {
   $items['admin/config/development/vision6'] = array(
@@ -60,9 +56,6 @@ function vision6_menu() {
 
 /**
  * Form callback for Vision6 settings.
- *
- * @param array $form
- * @param array $form_state
  */
 function vision6_settings($form, &$form_state) {
   $form['vision6_option'] = array(
@@ -70,7 +63,7 @@ function vision6_settings($form, &$form_state) {
     '#title' => t('Vision 6 API Settings'),
     '#access' => user_access('manage vision6 settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => (variable_get('vision6_api_key') != '' && variable_get('vision6_endpoint', '') != ''),
+    '#collapsed' => variable_get('vision6_api_key') != '' && variable_get('vision6_endpoint', '') != '',
   );
 
   $form['vision6_option']['vision6_api_key'] = array(
@@ -134,6 +127,7 @@ function vision6_settings($form, &$form_state) {
     '#default_value' => FALSE,
     '#access' => FALSE,
   );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Submit'),
@@ -150,9 +144,7 @@ function vision6_settings($form, &$form_state) {
 }
 
 /**
- * Form callback for Vision6 settings - validate
- * @param array $form
- * @param array $form_state
+ * Validate callback for Vision6 settings form.
  */
 function vision6_settings_validate($form, &$form_state) {
   if (!empty($form_state['delete_instances']) && empty($form_state['values']['confirmation'])) {
@@ -164,9 +156,7 @@ function vision6_settings_validate($form, &$form_state) {
 }
 
 /**
- * Form callback for Vision6 settings - submit
- * @param array $form
- * @param array $form_state
+ * Submit callback for Vision6 settings from.
  */
 function vision6_settings_submit($form, &$form_state) {
   variable_set('vision6_api_key', $form_state['values']['vision6_api_key']);
@@ -177,62 +167,62 @@ function vision6_settings_submit($form, &$form_state) {
   // Create the delete array.
   $form_state['delete_instances'] = array();
 
-  // This will be used as the description for the field.
-  $description = '';
   foreach ($node_types as $node_type) {
-    $enable = $prod_fields = $form_state['values'][$node_type->type];
+    $enable = !empty($form_state['values'][$node_type->type]) ? $form_state['values'][$node_type->type] : '';
     // Set the Published as syndication options.
     $default = FALSE;
     $field_name = 'field_vis6_published_as_synd';
     $label = 'Publish this content as syndication';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Syndication type.
     $default = 'email';
     $field_name = 'field_vis6_syndication_type';
     $label = 'How do you want to send the syndication';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, _vision6_get_syndication_type_array(), $default, '', $enable, $form_state);
+    $options = vision6_get_syndication_types();
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the Email type.
     $default = 'html';
     $field_name = 'field_vis6_email_type';
     $label = 'Type of email to send';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, _vision6_get_email_type_array(), $default, '', $enable, $form_state);
+    $options = vision6_get_email_types();
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the include body to syndication options.
     $default = FALSE;
     $field_name = 'field_vis6_inc_body_synd';
     $label = 'Show page content';
-    $description = 'Check this box to include the body text in the syndicated email.';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
+    _vision6_create_fields($node_type->type, $field_name, $label, array(), $default, '', $enable, $form_state, 'list_boolean', FALSE);
 
     // Set the Contact Type.
-    $description = '';
     $default = NULL;
     $field_name = 'field_vis6_type';
     $label = 'Who to contact';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, _vision6_get_type_type_array(), $default, '', $enable, $form_state);
+    $options = vision6_get_type();
+    _vision6_create_fields($node_type->type, $field_name, $label, $options, $default, '', $enable, $form_state);
 
     // Set the Contact List.
-    $default = NULL;
     $field_name = 'field_vis6_contact_list_id';
     $label = 'Which contact list to send it to?';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, '_vision6_get_contact_list_id', $default, '', $enable, $form_state);
-    if ($form_state['set_var']) variable_set('vision6_' . $node_type->type, $enable);;
+    _vision6_create_fields($node_type->type, $field_name, $label, '_vision6_get_contact_list_id', $default, '', $enable, $form_state);
+    if ($form_state['set_var']) {
+      variable_set('vision6_' . $node_type->type, $enable);
+    };
 
     // Set the Contact List.
     $default = FALSE;
     $field_name = 'field_vis6_previous_message_id';
     $label = 'Previous Message ID';
-    $set_var = _vision6_create_fields($node_type->type, $field_name, $label, $default, $default, '', $enable, $form_state, 'text');
-    if ($form_state['set_var']) variable_set('vision6_' . $node_type->type, $enable);;
+    _vision6_create_fields($node_type->type, $field_name, $label, $default, $default, '', $enable, $form_state, 'text');
+    if ($form_state['set_var']) {
+      variable_set('vision6_' . $node_type->type, $enable);
+    };
   }
 }
 
 /**
- * Form callback for Vision6 settings
- * @param array $form
- * @param array $form_state
+ * Form callback for Vision6 settings page.
  */
 function vision6_content_settings($form, &$form_state) {
   $form['vision6_content'] = array(
@@ -276,11 +266,6 @@ function vision6_content_settings($form, &$form_state) {
 
 /**
  * Form callback for the API testing page.
- *
- * @param $form
- * @param $form_state
- * 
- * @return mixed
  */
 function vision6_sandbox($form, &$form_state) {
   $form['addMessage'] = array(
@@ -297,7 +282,7 @@ function vision6_sandbox($form, &$form_state) {
     '#value' => variable_get('vision6_api_key'),
   );
 
-  // Type can also be SMS, though we're uninterested in this for now.
+  // @todo: Consider adding SMS to the type.
   $form['addMessage']['type'] = array(
     '#type' => 'value',
     '#value' => 'email',
@@ -313,7 +298,8 @@ function vision6_sandbox($form, &$form_state) {
     '#title' => 'Subject',
   );
 
-  // TODO: Need to test the differences between these, not clear in documentation.
+  // @todo: Need to review the differences between these, not clear in
+  // documentation.
   $form['addMessage']['email_type'] = array(
     '#type' => 'select',
     '#title' => 'Email Type',
@@ -335,7 +321,7 @@ function vision6_sandbox($form, &$form_state) {
   $form['addMessage']['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => 'addMessage()',
-    '#submit' => array('vision6_sandbox_add_message_submit')
+    '#submit' => array('vision6_sandbox_add_message_submit'),
   );
 
   $form['addBatch'] = array(
@@ -401,78 +387,75 @@ function vision6_sandbox($form, &$form_state) {
 }
 
 /**
- * Submission function for the addMessage function tester.
- *
- * @param $form
- * @param $form_submit
+ * Submit handler for the addMessage function tester.
  */
 function vision6_sandbox_add_message_submit(&$form, &$form_submit) {
-  $client = _vision6_get_api_client();
-
-  if (!$client) {
+  try {
+    $client = _vision6_get_api_client();
+  }
+  catch (Exception $e) {
     watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
     drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
   }
 
-  $values = $form_submit['values']['addMessage'];
+  $values = &$form_submit['values']['addMessage'];
   unset($values['actions']);
-  $message_id = $client->addMessage(variable_get('vision6_api_key'), $values);
-  if (module_exists('devel')) {
-    dpm($values);
-    dpm($message_id);
+
+  $api_key = variable_get('vision6_api_key');
+  try {
+    $message_id = $client->addMessage($api_key, $values);
   }
-  else {
-    drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
-    drupal_set_message(t('Message ID: %message', array('%message' => $message_id)));
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('Unable to add message to the Vision6 client'), 'error');
   }
+
+  drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
+  drupal_set_message(t('Message ID: %message', array('%message' => $message_id)));
 }
 
 /**
- * Submission function for the addBatch function tester.
- *
- * @param $form
- * @param $form_submit
+ * Submit handler for the addBatch function tester.
  */
 function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
-  $client = _vision6_get_api_client();
-
-  if (!$client) {
-    watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
-    drupal_set_message('Unable to retrieve an API client, is the JsonRPC library installed correctly?', 'error');
+  try {
+    $client = _vision6_get_api_client();
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('Could not initiate Vision6 API due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
-  $values = $form_submit['values']['addBatch'];
+  $values = &$form_submit['values']['addBatch'];
   unset($values['actions']);
-  $batch_id = $client->addBatch(variable_get('vision6_api_key'), $values['message_id'], $values['contact_populations']);
-  if (module_exists('devel')) {
-    dpm($values);
-    dpm($batch_id);
-  }
-  else {
-    drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
-    drupal_set_message(t('Batch ID: %batch', array('%batch' => $batch_id)));
-  }
+  $api_key = variable_get('vision6_api_key');
+  $batch_id = $client->addBatch($api_key, $values['message_id'], $values['contact_populations']);
+  drupal_set_message(t('Please enable the Devel module to properly use this function. NOTE: Do not leave the Devel module enabled in Production'));
+  drupal_set_message(t('Batch ID: %batch', array('%batch' => $batch_id)));
 }
 
 /**
  * Helper function to construct an API instance.
  *
- * @return \JsonRPC\Client Returns a JSON RPC client for usage with the Vision6 API. May return null if there was an
- *                         error loading required libraries.
+ * @return \JsonRPC\Client
+ *   Returns a JSON RPC client for usage with the Vision6 API. May return NULL
+ *   if there was an error loading required libraries.
+ *
+ * @throws Exception
  */
 function _vision6_get_api_client() {
   $loaded = libraries_load('JsonRPC');
   if (!$loaded['installed'] || !$loaded['loaded']) {
-    return NULL;
+    throw new Exception('Unable to load JsonRPC library');
   }
 
-  return new \JsonRPC\Client(variable_get('vision6_endpoint', 'http://www.vision6.com.au/api/jsonrpcserver.php?version=3.0'));
+  $endpoint = variable_get('vision6_endpoint', VISION6_DEFAULT_ENDPOINT);
+
+  return new \JsonRPC\Client($endpoint);
 }
 
 /**
  * Implements hook_permission().
- * 
- * @return array
  */
 function vision6_permission() {
   return array(
@@ -488,23 +471,18 @@ function vision6_permission() {
 }
 
 /**
- * Implements hook_form_alter().
- * 
- * @param array $form
- * drupal form object.
- * @param array $form_state
- * Drupal form_state.
- * @param string $form_id
+ * Implements hook_form_FORM_ID_alter().
  */
 function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
-  if (!variable_get('vision6_' . $form['type']['#value'], FALSE)) return;
+  if (!variable_get('vision6_' . $form['type']['#value'], FALSE)) {
+    return;
+  }
 
   $form['#validate'][] = '_vision6_form_node_form_validate';
 
-
-// The js sets the values of my newly created fields back to the original,
-// drupal fields. The new fields are in the vertical tab to meet the func spec.
-
+  // The js sets the values of my newly created fields back to the original,
+  // drupal fields. The new fields are in the vertical tab to meet the func
+  // spec.
   drupal_add_js(drupal_get_path('module', 'vision6') . '/js/vision6.js', 'file');
 
   if (user_access('access vision6 publish') && !user_access('publish revisions')) {
@@ -514,7 +492,8 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['options']['promote']['#access'] = FALSE;
     $form['options']['sticky']['#access'] = FALSE;
   }
-  // Get rid of the node fields and move them to fieldset.
+
+  // Get rid of the node fields and move them to a fieldset.
   $field_vis6_published_as_synd = $form['field_vis6_published_as_synd'];
   $field_vis6_syndication_type = $form['field_vis6_syndication_type'];
   $field_vis6_email_type = $form['field_vis6_email_type'];
@@ -534,7 +513,9 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
     '#weight' => 100,
     '#states' => array(
       'visible' => array(
-        ':input[name="field_vis6_new_published_as_synd[und]"]' => array('checked' => TRUE),
+        ':input[name="field_vis6_new_published_as_synd[und]"]' => array(
+          'checked' => TRUE,
+        ),
       ),
     ),
   );
@@ -561,15 +542,17 @@ function vision6_form_node_form_alter(&$form, &$form_state, $form_id) {
   $form['field_vis6_type']['#attributes']['style'] = 'display:none;';
   $form['field_vis6_contact_list_id']['#attributes']['style'] = 'display:none;';
   $form['field_vis6_inc_body_synd']['#attributes']['style'] = 'display:none;';
-
 }
 
 /**
- * A custom validation funciton to ensure that if the user selects a page node,
- * to be syndicated that the other syndication fields are filled in.
+ * Form validate handler.
+ *
+ * A custom validation function to ensure that if the user selects a page node
+ * to be syndicated, that the other syndication fields are filled in.
  */
 function _vision6_form_node_form_validate(&$form, &$form_state) {
-  // if it should be syndicated make the other fields mandatory.
+  // If this should be syndicated, then make the other fields mandatory.
+  // @todo: Consider adding compulsory param to the node form instead of this.
   if ($form_state['values']['field_vis6_new_published_as_synd'][LANGUAGE_NONE][0]['value']) {
     if (!$form_state['values']['field_vis6_new_syndication_type'][LANGUAGE_NONE][0]['value']) {
       form_set_error('field_vis6_new_syndication_type', t('The syndication type is required.'));
@@ -586,29 +569,45 @@ function _vision6_form_node_form_validate(&$form, &$form_state) {
   }
 }
 
+/**
+ * Implements hook_node_insert().
+ */
 function vision6_node_insert($node) {
   _vision6_node_beforesave($node);
 }
 
+/**
+ * Implements hook_node_update().
+ */
 function vision6_node_update($node) {
   _vision6_node_beforesave($node);
 }
 
+/**
+ * Helper to update node when the new state is set to published during save.
+ *
+ * @param object $node
+ *   Drupal node object.
+ * @param string $previous_state
+ *   Previous publishing state of the node moderation status.
+ * @param string $new_state
+ *   New state of the node moderation status.
+ */
 function vision6_workbench_moderation_transition($node, $previous_state, $new_state) {
   if ($new_state == 'published') {
     _vision6_node_beforesave($node);
   }
 }
+
 /**
- * Implements node_submit
+ * Custom handler function to add vision6 related data to the node on save.
+ *
  * @param object $node
- * node object.
- * @param array $form
- * form object.
- * @param array $form_state
- * Form state.
+ *   Node object.
  */
 function _vision6_node_beforesave($node) {
+  global $base_url;
+
   $wrapper = entity_metadata_wrapper('node', $node);
 
   if (!variable_get('vision6_' . $node->type, FALSE) || !user_access('access vision6 publish')) {
@@ -652,7 +651,7 @@ function _vision6_node_beforesave($node) {
     'name' => $node->title,
     'email_type' => $wrapper->field_vis6_email_type->value(),
     'subject' => $node->title,
-    'html_content' => '<div style="' . variable_get('vision6_title_style', '') . '">' .l($node->title, url('node/'.$node->nid, array('absolute' => TRUE))),
+    'html_content' => '<div style="' . variable_get('vision6_title_style', '') . '">' . l($node->title, url('node/' . $node->nid, array('absolute' => TRUE))),
   );
 
   if ($add_message['type'] == 'email') {
@@ -677,7 +676,6 @@ function _vision6_node_beforesave($node) {
     }
   }
 
-  global $base_url;
   $var_header = variable_get('vision6_header');
   if (is_array($var_header)) {
     $var_header = str_replace('src="/sites', 'src="' . $base_url . '/sites', $var_header);
@@ -693,107 +691,124 @@ function _vision6_node_beforesave($node) {
     array(
       'type' => $wrapper->field_vis6_type->value(),
       'list_id' => $wrapper->field_vis6_contact_list_id->value(),
-      'time'         => 'now',
+      'time' => 'now',
     ),
   );
 
   try {
-
     $client = _vision6_get_api_client();
-
-    if (!$client) {
-      watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
-      drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-      return;
-    }
-
-    $add_message['html_content'] .= '</div>';
-    $add_message['html_content'] = '<table style="width: 100%;"><tr><td align="center" valign="top"><center><table border="0" align="center" style="max-width:714px;"><tbody style="width:100%;"><tr><td>' . $add_message['html_content'];
-    $add_message['html_content'] .= '</td></tr></tbody></table></center></td></tr></table>';
-
-    if ($wrapper->field_vis6_type->value() == 'unsent' && $wrapper->field_vis6_previous_message_id->value()) {
-      $add_message['id'] = $wrapper->field_vis6_previous_message_id->value();
-      unset($add_message['type']);
-      $message_id = $client->editMessage(variable_get('vision6_api_key'), $add_message);
-    }
-    else {
-      $message_id = $client->addMessage(variable_get('vision6_api_key'), $add_message);
-    }
-
-    if ($message_id) {
-      $batch_id = $client->addBatch(variable_get('vision6_api_key'), $message_id, $add_batch);
-      if ($batch_id) {
-        drupal_set_message(t('Published as Syndication.'), 'status');
-        $node->field_vis6_published_as_synd[LANGUAGE_NONE][0]['value'] = 0;
-        $node->field_vis6_previous_message_id[LANGUAGE_NONE][0]['value'] = $message_id;
-        field_attach_update('node', $node);
-      }
-    }
   }
   catch (Exception $e) {
     watchdog_exception('vision6', $e);
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
+  $add_message['html_content'] .= '</div>';
+  $add_message['html_content'] .= '<table style="width: 100%;"><tr><td align="center" valign="top"><center><table border="0" align="center" style="max-width:714px;"><tbody style="width:100%;"><tr><td>' . $add_message['html_content'];
+  $add_message['html_content'] .= '</td></tr></tbody></table></center></td></tr></table>';
+
+  if ($wrapper->field_vis6_type->value() == 'unsent' && $wrapper->field_vis6_previous_message_id->value()) {
+    $add_message['id'] = $wrapper->field_vis6_previous_message_id->value();
+    unset($add_message['type']);
+    $message = variable_get('vision6_api_key');
+    try {
+      $message_id = $client->editMessage($message, $add_message);
+    }
+    catch (Exception $e) {
+      watchdog_exception('vision6', $e);
+      drupal_set_message(t('Could not edit message due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
+    }
+  }
+  else {
+    $api_key = variable_get('vision6_api_key');
+    try {
+      $message_id = $client->addMessage($api_key, $add_message);
+    }
+    catch (Exception $e) {
+      watchdog_exception('vision6', $e);
+      drupal_set_message(t('Could not add message due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
+    }
+  }
+
+  if ($message_id) {
+    $api_key = variable_get('vision6_api_key');
+    $batch_id = $client->addBatch($api_key, $message_id, $add_batch);
+    if ($batch_id) {
+      drupal_set_message(t('Published as Syndication.'), 'status');
+      $node->field_vis6_published_as_synd[LANGUAGE_NONE][0]['value'] = 0;
+      $node->field_vis6_previous_message_id[LANGUAGE_NONE][0]['value'] = $message_id;
+      field_attach_update('node', $node);
+    }
+  }
 }
 
+/**
+ * Helper to get the client list ids from Vision 6.
+ *
+ * @return array
+ *   Contact list array keyed by contact ID.
+ */
 function _vision6_get_contact_list_id() {
   $results = array();
   // Get the client list ids from Vision 6.
   try {
     $client = _vision6_get_api_client();
-
-    // TODO: we don't need multiple return paths, I'll get to it later.
-    if (!$client) {
-      watchdog('vision6', 'Unable to retrieve an API client, is the JsonRPC library installed correctly?', array(), WATCHDOG_CRITICAL);
-      drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-      return $results;
-    }
-
-    $result = $client->searchLists(variable_get('vision6_api_key'), array(), 0, 0 , 'name', 'ASC');
-
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog_exception('vision6', $e);
     drupal_set_message(t('Could not publish as Syndication due to the following error: &nbsp;') . check_plain($e->getMessage()), 'error');
   }
 
+  $api_key = variable_get('vision6_api_key');
+  try {
+    $result = $client->searchLists($api_key, array(), 0, 0, 'name', 'ASC');
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
+  }
+
   if (!isset($result['error'])) {
-    foreach ($result as $item){
+    foreach ($result as $item) {
       $results[$item['id']] = $item['name'];
     }
   }
   else {
-    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array('%errnum' => $result['error']['code'], '%errmessage' => $result['error']['message']), WATCHDOG_ERROR);
-    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array('%errnum' => $result['error']['code'], '%errmessage' => $result['error']['message'])), 'error');
+    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+      '%errnum' => $result['error']['code'],
+      '%errmessage' => $result['error']['message'],
+    ), WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+      '%errnum' => $result['error']['code'],
+      '%errmessage' => $result['error']['message'],
+    )), 'error');
   }
+
   return $results;
 }
 
 /**
- * Function _vision6_get_contact_list_by_id.
- * 
- * Get the details of a list by the client id.
- * 
- * @return [type] [description]
+ * Helper to get the details of a vision6 list by the client id.
+ *
+ * @return bool|object
+ *   Contact list object or FALSE.
  */
 function _vision6_get_contact_list_by_id($listid) {
-  $results = array();
-  // Get the client list ids from Vision 6.
   try {
     $client = _vision6_get_api_client();
+  }
+  catch (Exception $e) {
+    watchdog_exception('vision6', $e);
+    drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
+  }
 
-    // TODO: we don't need multiple return paths here, I'll get to it later.
-    if (!$client) {
-      watchdog('vision6', t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), array(), WATCHDOG_CRITICAL);
-      drupal_set_message(t('Unable to retrieve an API client, is the JsonRPC library installed correctly?'), 'error');
-
-      return FALSE;
-    }
-
-    $result = $client->getListById(array(variable_get('vision6_api_key'), $listid));
-  } catch (Exception $e) {
+  try {
+    $result = $client->getListById(array(
+      variable_get('vision6_api_key'),
+      $listid,
+    ));
+  }
+  catch (Exception $e) {
     watchdog_exception('vision6', $e);
     drupal_set_message(t('We could not find the list name.') . check_plain($e->getMessage()), 'error');
   }
@@ -802,16 +817,23 @@ function _vision6_get_contact_list_by_id($listid) {
     return $result;
   }
   else {
-    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array('%errnum' => $result['error']['code'], '%errmessage' => $result['error']['message']), WATCHDOG_ERROR);
-    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array('%errnum' => $result['error']['code'], '%errmessage' => $result['error']['message'])), 'error');
+    watchdog('vision6', 'Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+      '%errnum' => $result['error']['code'],
+      '%errmessage' => $result['error']['message'],
+    ), WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to retrieve The client list from Vision 6 due to Error number: %errnum. Error Message: %errmessage', array(
+      '%errnum' => $result['error']['code'],
+      '%errmessage' => $result['error']['message'],
+    )), 'error');
     return FALSE;
   }
 }
+
 /**
- * Function _vision6_create_fields.
+ * Helper to create Vision6 related fields.
  *
  * Take in field details and create them in the bundle requested with the
- * $bundle field
+ * $bundle field.
  *
  * @param string $bundle
  *   The bundle (content type) to add the fields to.
@@ -825,13 +847,13 @@ function _vision6_get_contact_list_by_id($listid) {
  *   The field default value.
  * @param string $description
  *   The field description.
- * @param string $enable
- *   A boolean to create or delete the field, TRUE = create.
+ * @param string|bool $enable
+ *   A string or boolean to create or delete the field, TRUE = create.
  * @param string $form_state
  *   The form_state array.
  * @param string $field_type
  *   The type of field, the machine name based on the form API.
- * @param string $multiple
+ * @param bool $multiple
  *   The list type field can be multiple.
  */
 function _vision6_create_fields($bundle, $field_name, $label, $options, $default, $description, $enable, &$form_state, $field_type = 'list_text', $multiple = FALSE) {
@@ -845,6 +867,7 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
     'field_vis6_previous_message_id' => 106,
   );
   $resubmit = _vision6_check_field($bundle, $enable, $field_name, $label, $default, $description, $weights[$field_name], $options, $form_state['values']['confirmation'], $field_type, $multiple);
+
   // If the function returned FALSE, show the please confirm checkbox.
   if (!$resubmit) {
     if (!in_array($bundle, $form_state['delete_instances'])) {
@@ -857,11 +880,11 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
 /**
  * Check if a field exists and if it doesn't, create it.
  *
- * @param string $type
- *   The type of field to create.
- * @param string $enable
- *   Ff the user wants to enable or disable this field.
- * @param string $field
+ * @param string $bundle
+ *   Bundle.
+ * @param string|bool $enable
+ *   Flag to indicate if the user wants to enable or disable this field.
+ * @param string $field_name
  *   The name of the field to be created.
  * @param string $label
  *   The field label.
@@ -875,41 +898,58 @@ function _vision6_create_fields($bundle, $field_name, $label, $options, $default
  *   The field options if it has any.
  * @param string $confirmed
  *   If the user has confirmed deleting the field.
- * @param  string $field_type
+ * @param string $field_type
  *   The type of field, defaults to list_text.
  *
  * @return bool
- *   True if the delete option has been approved.
+ *   Returns TRUE if the delete option has been approved or FALSE otherwise.
  */
-function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $description, $weight, $options, $confirmed, $field_type = 'list_text', $multiple = FALSE) {
-  // Does the field exist.
+function _vision6_check_field(
+    $bundle,
+    $enable,
+    $field_name,
+    $label,
+    $default,
+    $description,
+    $weight,
+    $options,
+    $confirmed,
+    $field_type = 'list_text',
+    $multiple = FALSE
+) {
   $instance = field_info_instance('node', $field_name, $bundle);
-  // Is it currently enabled.
   $currently_enabled = !empty($instance);
-  // If they want us to enable it and it doesn't currently exist, do the work.
+
   if ($enable && !$currently_enabled) {
     _vision6_create_instance($field_name, $field_type, FALSE, 'node', $bundle, $label, $default, $options, $description, $weight, TRUE, $multiple);
-    // Initialize fields of every existing node of $bundle bundle to 0.
+
+    // Set default field values of every existing node of $bundle bundle to 0.
     _vision6_field_initialise('node', $bundle, $field_name, $default);
 
-    drupal_set_message(t('%label has been enabled on the %type Content Type', array('%type' => $bundle, '%label' => $label)));
+    drupal_set_message(t('%label has been enabled on the %type Content Type', array(
+      '%type' => $bundle,
+      '%label' => $label,
+    )));
   }
-  // Conversely, if they *don't* want it and it's currently enabled,
-  // warn them about the consequences or do it.
   elseif (!$enable && $currently_enabled) {
+    // Conversely, if they *don't* want it and it's currently enabled,
+    // warn them about the consequences or do it.
     // If they haven't clicked the "confirm" checkbox, rebuild and get them,
     // to do it.
     if (empty($confirmed)) {
       return FALSE;
     }
-    // Otherwise they already have clicked it and we can delete.
     else {
-      // Remove the instance.
+      // Otherwise they already have clicked it and we can delete.
       field_delete_instance($instance);
 
-      drupal_set_message(t('%label management has been disabled on the %bundle Content Type', array('%bundle' => $bundle, '%label' => $label)));
+      drupal_set_message(t('%label management has been disabled on the %bundle Content Type', array(
+        '%bundle' => $bundle,
+        '%label' => $label,
+      )));
     }
   }
+
   return TRUE;
 }
 
@@ -944,9 +984,20 @@ function _vision6_check_field($bundle, $enable, $field_name, $label, $default, $
  * @param bool $no_display
  *   Hide the field display.
  */
-function _vision6_create_instance($field_name, $field_type,
-        $required, $entity_type, $bundle, $label, $default, $options = array(),
-        $description = NULL, $weight = 0, $no_display = TRUE, $multiple = FALSE) {
+function _vision6_create_instance(
+    $field_name,
+    $field_type,
+    $required,
+    $entity_type,
+    $bundle,
+    $label,
+    $default,
+    $options = array(),
+    $description = NULL,
+    $weight = 0,
+    $no_display = TRUE,
+    $multiple = FALSE
+) {
 
   // Look for the field and instance.
   $field = field_info_field($field_name);
@@ -1043,11 +1094,10 @@ function _vision6_create_instance($field_name, $field_type,
     // Create the field instance.
     field_create_instance($instance);
   }
-
 }
 
 /**
- * Funciton _vision6_field_initialise.
+ * Initialize handler.
  *
  * This functions parses all the nodes of the specified bundle, and
  * initialize the required field to the default value.
@@ -1076,31 +1126,31 @@ function _vision6_field_initialise($bundle, $field_name, $default) {
  * @return array
  *    The array used mainly in forms.
  */
-function _vision6_get_syndication_type_array() {
+function vision6_get_syndication_types() {
   return array(
     'email' => t('Email'),
   );
 }
 
 /**
- * Returns an array of syndication types.
+ * Getter of email types.
  *
  * @return array
- *    The array used mainly in forms.
+ *   The array of email types.
  */
-function _vision6_get_email_type_array() {
+function vision6_get_email_types() {
   return array(
     'html' => t('HTML'),
   );
 }
 
 /**
- * Returns an array of syndication types.
+ * Getter of syndication types.
  *
  * @return array
- *    The array used mainly in forms.
+ *   The array used mainly in forms.
  */
-function _vision6_get_type_type_array() {
+function vision6_get_type() {
   return array(
     'list' => t('Send to all contacts in the List'),
     'unsent' => t('Only send to Contacts who have not been sent the Message'),
