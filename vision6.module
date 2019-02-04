@@ -15,9 +15,9 @@ function vision6_libraries_info() {
     'vendor url' => 'https://github.com/matasarei/JsonRPC',
     'download url' => 'https://github.com/matasarei/JsonRPC/archive/master.zip',
     'version' => 'master',
-    'files' => [
-      'php' => ['src/JsonRPC/Client.php'],
-    ],
+    'xautoload' => function ($adapter) {
+      $adapter->add('JsonRPC', 'src');
+    },
   ];
 
   return $libraries;
