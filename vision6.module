@@ -12,8 +12,8 @@ define('VISION6_DEFAULT_ENDPOINT', 'http://www.vision6.com.au/api/jsonrpcserver.
 function vision6_libraries_info() {
   $libraries['JsonRPC'] = [
     'name' => 'JsonRPC',
-    'vendor url' => 'https://github.com/fguillot/JsonRPC',
-    'download url' => 'https://github.com/fguillot/JsonRPC/archive/master.zip',
+    'vendor url' => 'https://github.com/matasarei/JsonRPC',
+    'download url' => 'https://github.com/matasarei/JsonRPC/archive/master.zip',
     'version' => 'master',
     'files' => [
       'php' => ['src/JsonRPC/Client.php'],
