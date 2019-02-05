@@ -445,7 +445,7 @@ function vision6_sandbox_add_batch_submit(&$form, &$form_submit) {
  */
 function _vision6_get_api_client() {
   $loaded = libraries_load('JsonRPC');
-  if (!$loaded['installed'] || !$loaded['loaded']) {
+  if (!$loaded['installed']) {
     throw new Exception('Unable to load JsonRPC library');
   }
 
